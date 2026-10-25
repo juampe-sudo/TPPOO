@@ -445,3 +445,17 @@ Relaciones: Crear reserva incluye Calcular precio; Cancelar reserva incluye Calc
 Primera versión, armada a partir del enunciado. Tiene la jerarquía Tour (abstracta) con TourAventura, TourCultural y TourNaturaleza, que sobrescriben getCategoria(), y TourAventura además validarPasajero() para controlar la edad mínima. También la jerarquía Persona, con Cliente, Pasajero y Empleado (abstracta), y los cuatro tipos de empleado que sobrescriben getRol(). Toda la operación está concentrada en AgenciaTurismo; eso es lo que corregimos en el punto 6.
 
 ![Diagrama de clases inicial](uml/clases_inicial.png)
+
+## 5. Diagramas de secuencia
+
+### 5.1 CU04 Crear reserva (con flujos alternativos)
+
+Muestra el camino completo: el menú pasa los datos al controlador, que busca cliente y salida en los repositorios. Hay dos fragmentos alt: si la salida no admite reservas se lanza ReglaNegocioException, y si al confirmar no alcanzan los lugares se lanza CupoInsuficienteException. El loop de pasajeros muestra que cada uno lo valida el tour (esApto) y el cálculo del total muestra los loop de pasajeros y de promociones.
+
+![Secuencia Crear reserva](uml/secuencia_crear_reserva.png)
+
+### 5.2 CU09 Cancelar reserva (flujo de error y alternativo)
+
+El primer alt cubre el error (la reserva no existe o ya está anulada). Dentro del else hay otro alt que elige la política según quién provoca la cancelación. Después la reserva pide los días a la salida, el porcentaje a la política, crea la Cancelacion y la salida recalcula su estado para liberar los lugares.
+
+![Secuencia Cancelar reserva](uml/secuencia_cancelar_reserva.png)
