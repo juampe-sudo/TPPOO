@@ -439,3 +439,9 @@ Relaciones: Crear reserva incluye Calcular precio; Cancelar reserva incluye Calc
 **Flujos alternativos**
 
 - 2a. No hay datos: el sistema muestra el reporte vacío.
+
+## 4. Diagrama de clases inicial
+
+Primera versión, armada a partir del enunciado. Tiene la jerarquía Tour (abstracta) con TourAventura, TourCultural y TourNaturaleza, que sobrescriben getCategoria(), y TourAventura además validarPasajero() para controlar la edad mínima. También la jerarquía Persona, con Cliente, Pasajero y Empleado (abstracta), y los cuatro tipos de empleado que sobrescriben getRol(). Toda la operación está concentrada en AgenciaTurismo; eso es lo que corregimos en el punto 6.
+
+![Diagrama de clases inicial](uml/clases_inicial.png)
