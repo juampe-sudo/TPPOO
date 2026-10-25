@@ -516,3 +516,27 @@ Para cada principio y patrón indicamos el problema que encontramos en el diseñ
 - **Decisión:** Tour es abstracta y TourAventura sobrescribe esApto() y getServiciosObligatorios(); las tres subclases sobrescriben getCategoria(). Promocion, PoliticaCancelacion y Reporte se usan siempre a través de la interfaz.
 - **Dónde se ve:** Tour, TourAventura, TourCultural, TourNaturaleza, Promocion y sus implementaciones, PoliticaCancelacion y sus implementaciones, Reporte y sus implementaciones.
 - **Ventaja:** No hay instanceof ni switch por tipo. Salida le pide a su tour esApto(p) sin saber de qué categoría es, y Reserva aplica cualquier promoción de la misma forma.
+
+## 7. Diagrama de clases final
+
+Referencias de color: celeste, controladores; amarillo, interfaces de estrategia y sus implementaciones; gris, enumeraciones. Las fuentes .drawio están en docs/uml.
+
+![Diagrama de clases final](uml/clases_final.png)
+
+### 7.1 Nota de cambios respecto del diagrama inicial
+
+- Se eliminó AgenciaTurismo. Sus responsabilidades pasaron a MenuConsola y a cuatro controladores (SRP, Controlador).
+- Se agregaron Repositorio<T> y RepositorioArchivo<T> para la persistencia; los controladores dependen de la interfaz (DIP).
+- Se agregó la interfaz Promocion con PromocionReservaAnticipada y PromocionGrupo. Reserva.calcularTotal() ahora recibe List<Promocion> y aplica la de mayor descuento (OCP, Polimorfismo).
+- Se agregó la interfaz PoliticaCancelacion con PoliticaCancelacionCliente y PoliticaCancelacionAgencia. calcularDevolucion(fecha, porAgencia) se reemplazó por cancelar(motivo, hoy, politica), que crea y devuelve la Cancelacion (OCP, Polimorfismo, Creador).
+- Los cuatro reportes son clases que implementan Reporte y los usa ControladorReportes (SRP, OCP).
+- Nueva clase Liquidacion, creada por Guia.liquidar(salida); antes AgenciaTurismo.liquidarGuia() devolvía solo un double (Experto, Creador).
+- Métodos movidos al experto: Salida (admiteReservas, admitePasajero, lugaresOcupados, getPrecioBase, actualizarEstado, diasHastaInicio, seSuperponeCon, totalAdicionalesVendidos, diasDeDuracion, iniciar, finalizar, cancelar), Tour.getTarifaVigente() (antes getPrecioBase(fecha)), Tarifa.estaVigente(), Pasajero.calcularImporte() y totalServicios() (y getEdad() pasó a edadAl(fecha)), Guia.estaHabilitado() y estaDisponible(), Vendedor.calcularComision(), Reserva.montoPagado(), saldo() y subtotalTour() (Experto).
+- Reserva.registrarPago() recibe los datos del pago en vez de un Pago ya armado. Tour recibe los datos de actividades, tarifas, adicionales y salidas y los crea (Creador).
+- Tour.validarPasajero() pasó a llamarse esApto() y se agregó getServiciosObligatorios(), sobrescrito en TourAventura para el seguro obligatorio (Polimorfismo).
+- Salida agrega cupoMinimo y listaEmitida (necesarios para RN04 y RN17, aparecieron al hacer los diagramas de secuencia). cambiarEstado(e) se reemplazó por actualizarEstado(), que decide el estado solo.
+- Se agregaron las excepciones propias ReglaNegocioException y CupoInsuficienteException, que aparecen en los flujos alternativos de los diagramas de secuencia.
+- Actividad implementa Comparable<Actividad> para ordenar el itinerario por día y orden. En Guia, categorias pasó de List a Set porque no puede repetirse una categoría.
+- Persona agrega getNombreCompleto(), que usan la lista de pasajeros y los reportes.
+
+Los dos diagramas de secuencia ya usan las clases y métodos del diagrama final, así que los mensajes de las secuencias coinciden con las operaciones de las clases.
