@@ -13,3 +13,4 @@ Estructura del proyecto
 
 Historial del repositorio
 - El trabajo empezó en otro repositorio (github.com/jpsam4/TrabajoPOO). Perdimos el acceso a la cuenta administradora de ese repositorio y migramos el trabajo a este, conservando el historial de commits.
+- Al migrar, volvimos a abrir en este repositorio como pull requests el trabajo que ya estaba en el anterior (de los branches que ya migramos).
