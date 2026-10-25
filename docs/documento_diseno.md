@@ -459,3 +459,60 @@ Muestra el camino completo: el menú pasa los datos al controlador, que busca cl
 El primer alt cubre el error (la reserva no existe o ya está anulada). Dentro del else hay otro alt que elige la política según quién provoca la cancelación. Después la reserva pide los días a la salida, el porcentaje a la política, crea la Cancelacion y la salida recalcula su estado para liberar los lugares.
 
 ![Secuencia Cancelar reserva](uml/secuencia_cancelar_reserva.png)
+
+## 6. Aplicación de patrones
+
+Para cada principio y patrón indicamos el problema que encontramos en el diseño inicial, la decisión que tomamos, dónde se ve y qué ventaja trae.
+
+### 6.1 Principios SOLID
+
+#### S: Responsabilidad única (SRP)
+
+- **Problema detectado:** En el diagrama inicial AgenciaTurismo hacía todo: alta de tours, reservas, pagos, cancelaciones, operación de salidas, liquidaciones, los cuatro reportes y además guardar y cargar los archivos. Tenía 20 métodos y cualquier cambio (por ejemplo, el formato de un reporte) obligaba a tocar la misma clase.
+- **Decisión:** Repartimos esas responsabilidades. Cada grupo de casos de uso tiene su controlador, la lectura y escritura de archivos pasó a RepositorioArchivo<T> y cada reporte es una clase propia.
+- **Dónde se ve:** ControladorCatalogo, ControladorReservas, ControladorSalidas, ControladorReportes, RepositorioArchivo<T>, ReporteOcupacion, ReporteVentasPorVendedor, ReporteIngresosPorTour, ReporteCancelaciones.
+- **Ventaja:** Cada clase tiene un solo motivo para cambiar. Son más chicas y fáciles de probar, y en la etapa 2 podemos repartirnos el código sin pisarnos.
+
+#### O: Abierto/cerrado (OCP)
+
+- **Problema detectado:** Reserva.calcularTotal() tenía los if de cada promoción y Reserva.calcularDevolucion(fecha, porAgencia) tenía los if de cada tipo de cancelación. Si la agencia quiere sumar una promoción nueva (por ejemplo, una de temporada de auroras) había que modificar Reserva.
+- **Decisión:** Creamos las interfaces Promocion y PoliticaCancelacion. Reserva recibe la lista de promociones y la política, y solo les pide el descuento o el porcentaje. Con los reportes hicimos lo mismo con la interfaz Reporte.
+- **Dónde se ve:** Promocion, PromocionReservaAnticipada, PromocionGrupo, PoliticaCancelacion, PoliticaCancelacionCliente, PoliticaCancelacionAgencia, Reporte y sus implementaciones, Reserva, ControladorReportes.
+- **Ventaja:** Para agregar una promoción, una política o un reporte nuevo se agrega una clase; Reserva y los controladores no se modifican.
+
+#### D: Inversión de dependencias (DIP)
+
+- **Problema detectado:** La lógica de negocio dependía directamente de los archivos (guardarDatos() y cargarDatos() dentro de AgenciaTurismo). Cambiar el formato de los archivos afectaba a la lógica, y para probar una reserva había que tener archivos reales.
+- **Decisión:** Los controladores dependen de la interfaz Repositorio<T> (guardar, buscar, listar) y no de una clase concreta. RepositorioArchivo<T> la implementa y se le pasa a cada controlador por el constructor cuando arranca el programa.
+- **Dónde se ve:** Repositorio<T>, RepositorioArchivo<T>, ControladorCatalogo, ControladorReservas, ControladorSalidas y los reportes.
+- **Ventaja:** Podemos cambiar cómo se guardan los datos sin tocar los controladores, y en las pruebas unitarias usar un repositorio en memoria.
+
+### 6.2 Patrones GRASP
+
+#### Experto en información
+
+- **Problema detectado:** En el diseño inicial AgenciaTurismo calculaba la liquidación del guía y el estado de las salidas pidiendo datos con getters a otras clases.
+- **Decisión:** Cada cálculo lo hace la clase que tiene los datos: Salida calcula lugares ocupados y disponibles, días hasta el inicio, adicionales vendidos y su propio estado; Tour sabe cuál es su tarifa vigente; Tarifa sabe si está vigente; Pasajero calcula su importe según su tipo y edad; Reserva calcula su total, lo pagado y el saldo; Guia calcula sus honorarios; Vendedor su comisión.
+- **Dónde se ve:** Salida, Tour, Tarifa, Pasajero, Reserva, Guia, Vendedor.
+- **Ventaja:** Los datos quedan encapsulados, hay menos getters expuestos y menos acoplamiento. Se ve en el diagrama de secuencia de Crear reserva: el controlador no calcula nada, le pregunta a salida y a reserva.
+
+#### Creador
+
+- **Problema detectado:** En el inicial AgenciaTurismo armaba los Pago, las Salida, las Actividad y las Tarifa y se los pasaba ya creados a la clase que los guarda. Así cualquier clase podía crear un pago suelto, sin reserva.
+- **Decisión:** Crea cada objeto la clase que lo contiene o tiene los datos para inicializarlo: Reserva crea Pago, Cancelacion y NotaAjuste (son composición); Tour crea Actividad, Tarifa, ServicioAdicional y Salida (tiene la duración y los cupos); Guia crea Liquidacion; ControladorReservas crea el Pasajero porque recibe sus datos del menú.
+- **Dónde se ve:** Reserva.registrarPago(), Reserva.cancelar(), Reserva.agregarNota(), Tour.agregarActividad(), Tour.agregarTarifa(), Tour.programarSalida(), Guia.liquidar().
+- **Ventaja:** Se respeta la composición y las validaciones quedan en un solo lugar (por ejemplo, no se puede registrar un pago en una reserva anulada).
+
+#### Controlador
+
+- **Problema detectado:** Hacía falta decidir quién recibe los eventos que vienen del menú. Si lo hacía el menú, la interfaz quedaba mezclada con la lógica; si lo hacía una sola clase, volvíamos a tener AgenciaTurismo.
+- **Decisión:** Un controlador por grupo de casos de uso. MenuConsola solo lee datos y muestra resultados; el controlador recibe el pedido, busca los objetos en los repositorios y delega en las entidades.
+- **Dónde se ve:** MenuConsola, ControladorCatalogo, ControladorReservas, ControladorSalidas, ControladorReportes (se ven en los dos diagramas de secuencia).
+- **Ventaja:** La interfaz queda separada de la lógica. Si en la etapa 2 hacemos interfaz gráfica, los controladores no cambian.
+
+#### Polimorfismo
+
+- **Problema detectado:** Hay comportamientos que cambian según el tipo: la validación del pasajero depende de la categoría del tour (edad mínima y seguro obligatorio en aventura), y el descuento, la devolución y el reporte dependen de cuál se use. Resolverlo con if o switch por tipo obliga a tocar el código cada vez que aparece una variante.
+- **Decisión:** Tour es abstracta y TourAventura sobrescribe esApto() y getServiciosObligatorios(); las tres subclases sobrescriben getCategoria(). Promocion, PoliticaCancelacion y Reporte se usan siempre a través de la interfaz.
+- **Dónde se ve:** Tour, TourAventura, TourCultural, TourNaturaleza, Promocion y sus implementaciones, PoliticaCancelacion y sus implementaciones, Reporte y sus implementaciones.
+- **Ventaja:** No hay instanceof ni switch por tipo. Salida le pide a su tour esApto(p) sin saber de qué categoría es, y Reserva aplica cualquier promoción de la misma forma.
