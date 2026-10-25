@@ -6,7 +6,7 @@ Sistema de gestión para la agencia "Rumbo Norte Alaska"
 
 - Propuesta elegida: B - Agencia de Turismo (adaptada a una agencia receptiva en Alaska, cambio de contexto aprobado por el docente).
 - Integrantes: Joaquín Castellano Acuña, Juan Zeljkovich, Juan Pedro Sama.
-- Repositorio: https://github.com/jpsam4/TrabajoPOO
+- Repositorio: https://github.com/juampe-sudo/TPPOO
 
 ## 1. Propuesta elegida y enunciado
 
