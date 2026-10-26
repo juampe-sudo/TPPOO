@@ -450,13 +450,13 @@ Primera versión, armada a partir del enunciado. Tiene la jerarquía Tour (abstr
 
 ### 5.1 CU04 Crear reserva (con flujos alternativos)
 
-Muestra el camino completo: el menú pasa los datos al controlador, que busca cliente y salida en los repositorios. Hay dos fragmentos alt: si la salida no admite reservas se lanza ReglaNegocioException, y si al confirmar no alcanzan los lugares se lanza CupoInsuficienteException. El loop de pasajeros muestra que cada uno lo valida el tour (esApto) y el cálculo del total muestra los loop de pasajeros y de promociones.
+Muestra el camino completo: el menú pasa los datos al controlador, que busca cliente y salida en los repositorios. Si la salida no admite reservas, un fragmento break corta el flujo con ReglaNegocioException. En el loop de pasajeros la salida le pide al tour que valide cada uno (esApto) y, si es apto, le agrega los servicios obligatorios; si no lo es, un alt lanza ReglaNegocioException. Al confirmar, otro alt lanza CupoInsuficienteException si no alcanzan los lugares. El cálculo del total muestra los loop de pasajeros y de promociones.
 
 ![Secuencia Crear reserva](uml/secuencia_crear_reserva.png)
 
 ### 5.2 CU09 Cancelar reserva (flujo de error y alternativo)
 
-El primer alt cubre el error (la reserva no existe o ya está anulada). Dentro del else hay otro alt que elige la política según quién provoca la cancelación. Después la reserva pide los días a la salida, el porcentaje a la política, crea la Cancelacion y la salida recalcula su estado para liberar los lugares.
+El primer alt cubre el error (la reserva no existe, está anulada o finalizada). Dentro del else hay otro alt que elige la política según quién provoca la cancelación. Después la reserva pide los días a la salida, el porcentaje a la política, crea la Cancelacion y la salida recalcula su estado para liberar los lugares.
 
 ![Secuencia Cancelar reserva](uml/secuencia_cancelar_reserva.png)
 
