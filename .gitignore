@@ -1,0 +1,15 @@
+# Compilados
+out/
+bin/
+*.class
+
+# Archivos de datos generados por el programa
+data/*.dat
+
+# Carpetas y archivos del IDE
+.idea/
+*.iml
+.vscode/
+.settings/
+.classpath
+.project
