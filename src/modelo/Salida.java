@@ -3,6 +3,9 @@ package modelo;
 import enums.EstadoSalida;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class Salida {
 
@@ -15,6 +18,7 @@ public class Salida {
     private EstadoSalida estado;
     private Guia guia;
     private Vehiculo vehiculo;
+    private List<Reserva> reservas;
     private boolean listaEmitida;
 
     public Salida(String codigo, Tour tour, LocalDate fechaInicio, LocalDate fechaFin,
@@ -28,6 +32,7 @@ public class Salida {
         this.estado = EstadoSalida.PROGRAMADA;
         this.guia = null;
         this.vehiculo = null;
+        this.reservas = new ArrayList<>();
         this.listaEmitida = false;
     }
 
@@ -65,6 +70,10 @@ public class Salida {
 
     public Vehiculo getVehiculo() {
         return vehiculo;
+    }
+
+    public List<Reserva> getReservas() {
+        return Collections.unmodifiableList(reservas);
     }
 
     public boolean isListaEmitida() {
