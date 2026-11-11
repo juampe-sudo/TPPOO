@@ -13,6 +13,7 @@ public class Guia extends Empleado {
     private List<String> idiomas;
     private Set<CategoriaTour> categorias;
     private double honorarioPorDia;
+    private List<Salida> salidas;
 
     public Guia(String nombre, String apellido, String documento, int legajo, String telefono,
                 List<String> idiomas, Set<CategoriaTour> categorias, double honorarioPorDia) {
@@ -20,6 +21,7 @@ public class Guia extends Empleado {
         this.idiomas = new ArrayList<>(idiomas);
         this.categorias = new HashSet<>(categorias);
         this.honorarioPorDia = honorarioPorDia;
+        this.salidas = new ArrayList<>();
     }
 
     public List<String> getIdiomas() {
@@ -32,6 +34,10 @@ public class Guia extends Empleado {
 
     public double getHonorarioPorDia() {
         return honorarioPorDia;
+    }
+
+    public List<Salida> getSalidas() {
+        return Collections.unmodifiableList(salidas);
     }
 
     @Override
