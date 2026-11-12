@@ -9,6 +9,7 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 public class Salida {
@@ -153,6 +154,60 @@ public class Salida {
 
     public int diasHastaInicio(LocalDate hoy) {
         return (int) ChronoUnit.DAYS.between(hoy, fechaInicio);
+    }
+
+    public void asignarGuia(Guia g) throws ReglaNegocioException {
+        if (!sinIniciar()) {
+            throw new ReglaNegocioException("No se puede asignar guía a una salida "
+                    + estado.getDescripcion().toLowerCase());
+        }
+        if (g == null) {
+            throw new ReglaNegocioException("Hay que indicar el guía de la salida");
+        }
+        if (!g.estaHabilitado(tour.getCategoria())) {
+            throw new ReglaNegocioException("El guía " + g.getNombreCompleto() + " no está habilitado para tours de "
+                    + tour.getCategoria().getDescripcion().toLowerCase());
+        }
+        if (!g.estaDisponible(this)) {
+            throw new ReglaNegocioException("El guía " + g.getNombreCompleto() + " tiene otra salida en esas fechas");
+        }
+        guia = g;
+        g.agregarSalida(this);
+    }
+
+    public void asignarVehiculo(Vehiculo v) throws ReglaNegocioException {
+        if (!sinIniciar()) {
+            throw new ReglaNegocioException("No se puede asignar vehículo a una salida "
+                    + estado.getDescripcion().toLowerCase());
+        }
+        if (v == null) {
+            throw new ReglaNegocioException("Hay que indicar el vehículo de la salida");
+        }
+        if (v.getCapacidad() < cupoMaximo) {
+            throw new ReglaNegocioException("El vehículo " + v.getPatente() + " tiene capacidad para "
+                    + v.getCapacidad() + " y la salida tiene un cupo de " + cupoMaximo);
+        }
+        vehiculo = v;
+    }
+
+    public List<Pasajero> emitirListaPasajeros() throws ReglaNegocioException {
+        if (guia == null) {
+            throw new ReglaNegocioException("La salida " + codigo + " no tiene guía asignado");
+        }
+        List<Pasajero> lista = new ArrayList<>();
+        for (Reserva r : reservas) {
+            if (reservaActiva(r)) {
+                lista.addAll(r.getPasajeros());
+            }
+        }
+        if (lista.isEmpty()) {
+            throw new ReglaNegocioException("La salida " + codigo + " no tiene pasajeros");
+        }
+        Comparator<Pasajero> porApellido = Comparator.comparing(Pasajero::getApellido)
+                .thenComparing(Pasajero::getNombre);
+        Collections.sort(lista, porApellido);
+        listaEmitida = true;
+        return lista;
     }
 
     public boolean seSuperponeCon(Salida otra) {

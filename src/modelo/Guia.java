@@ -1,6 +1,7 @@
 package modelo;
 
 import enums.CategoriaTour;
+import enums.EstadoSalida;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,5 +44,24 @@ public class Guia extends Empleado {
     @Override
     public String getRol() {
         return "Guía";
+    }
+
+    public boolean estaHabilitado(CategoriaTour c) {
+        return categorias.contains(c);
+    }
+
+    public boolean estaDisponible(Salida s) {
+        for (Salida existente : salidas) {
+            if (existente != s && existente.getEstado() != EstadoSalida.CANCELADA && existente.seSuperponeCon(s)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void agregarSalida(Salida s) {
+        if (!salidas.contains(s)) {
+            salidas.add(s);
+        }
     }
 }
