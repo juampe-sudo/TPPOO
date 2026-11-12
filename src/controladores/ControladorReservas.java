@@ -40,6 +40,13 @@ public class ControladorReservas {
     }
 
     public void registrarCliente(Cliente c) throws ReglaNegocioException {
+        if (c.getNombre().isBlank() || c.getApellido().isBlank() || c.getDocumento().isBlank()
+                || c.getTelefono().isBlank() || c.getPaisResidencia().isBlank()) {
+            throw new ReglaNegocioException("Faltan datos obligatorios del cliente");
+        }
+        if (!c.getEmail().matches("[^@\\s]+@[^@\\s]+\\.[^@\\s]+")) {
+            throw new ReglaNegocioException("El correo " + c.getEmail() + " no tiene un formato válido");
+        }
         Cliente existente = clientes.buscar(c.getDocumento());
         if (existente != null) {
             throw new ReglaNegocioException("El cliente ya está registrado: " + existente);
