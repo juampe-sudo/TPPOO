@@ -11,6 +11,7 @@ import enums.TipoActividad;
 import excepciones.ReglaNegocioException;
 import modelo.Actividad;
 import modelo.Proveedor;
+import modelo.Salida;
 import modelo.ServicioAdicional;
 import modelo.Tarifa;
 import modelo.Tour;
@@ -22,6 +23,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
+import java.util.List;
 import java.util.Scanner;
 
 public class MenuConsola {
@@ -54,9 +56,33 @@ public class MenuConsola {
             System.out.println("0. Salir");
             opcion = leerEntero("Elegí tu rol: ");
             switch (opcion) {
+                case 2 -> menuCoordinador();
                 case 3 -> menuAdministrador();
                 case 0 -> System.out.println("Hasta luego");
                 default -> System.out.println("Opción inválida");
+            }
+        } while (opcion != 0);
+    }
+
+    private void menuCoordinador() {
+        int opcion;
+        do {
+            System.out.println();
+            System.out.println("--- Coordinador de operaciones ---");
+            System.out.println("1. Programar salida");
+            System.out.println("2. Ver salidas");
+            System.out.println("0. Volver");
+            opcion = leerEntero("Opción: ");
+            try {
+                switch (opcion) {
+                    case 1 -> programarSalida();
+                    case 2 -> verSalidas();
+                    case 0 -> {
+                    }
+                    default -> System.out.println("Opción inválida");
+                }
+            } catch (ReglaNegocioException e) {
+                System.out.println("Error: " + e.getMessage());
             }
         } while (opcion != 0);
     }
@@ -210,6 +236,34 @@ public class MenuConsola {
                 System.out.println("  Adicional " + s.getNombre() + ": " + usd(s.getPrecio())
                         + (s.isObligatorio() ? " (obligatorio)" : ""));
             }
+        }
+    }
+
+    private void programarSalida() throws ReglaNegocioException {
+        for (Tour t : ctrlCatalogo.listarTours()) {
+            System.out.println("  " + t.getCodigo() + " - " + t.getNombre() + " (" + t.getDuracionDias()
+                    + " días, cupo " + t.getCupoMinimo() + " a " + t.getCupoMaximo() + ")");
+        }
+        String codTour = leerTexto("Código del tour: ");
+        LocalDate inicio = leerFecha("Fecha de inicio");
+        int cupo = leerEntero("Cupo máximo de la salida: ");
+        Salida salida = ctrlSalidas.programarSalida(codTour, inicio, cupo);
+        System.out.println("Salida " + salida.getCodigo() + " programada del " + salida.getFechaInicio().format(FECHA)
+                + " al " + salida.getFechaFin().format(FECHA));
+    }
+
+    private void verSalidas() {
+        List<Salida> salidas = ctrlSalidas.listarSalidas();
+        if (salidas.isEmpty()) {
+            System.out.println("No hay salidas programadas");
+            return;
+        }
+        for (Salida s : salidas) {
+            String guia = s.getGuia() == null ? "sin guía" : "guía " + s.getGuia().getNombreCompleto();
+            String vehiculo = s.getVehiculo() == null ? "sin vehículo" : "vehículo " + s.getVehiculo().getPatente();
+            System.out.println(s.getCodigo() + " | " + s.getTour().getNombre() + " | " + s.getFechaInicio().format(FECHA)
+                    + " al " + s.getFechaFin().format(FECHA) + " | " + s.getEstado().getDescripcion() + " | "
+                    + s.lugaresOcupados() + "/" + s.getCupoMaximo() + " lugares | " + guia + " | " + vehiculo);
         }
     }
 
