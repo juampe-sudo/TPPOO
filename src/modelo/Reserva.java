@@ -1,6 +1,8 @@
 package modelo;
 
 import enums.EstadoReserva;
+import enums.MedioPago;
+import estrategias.PoliticaCancelacion;
 import estrategias.Promocion;
 import excepciones.ReglaNegocioException;
 
@@ -116,5 +118,89 @@ public class Reserva {
         }
         total = subtotal - mayorDescuento + adicionales;
         return total;
+    }
+
+    public double montoPagado() {
+        double pagado = 0;
+        for (Pago p : pagos) {
+            pagado += p.getImporte();
+        }
+        return pagado;
+    }
+
+    public double saldo() {
+        return Math.max(0.0, total - montoPagado());
+    }
+
+    public Pago registrarPago(double importe, MedioPago medio, int cuotas, LocalDate fecha)
+            throws ReglaNegocioException {
+        verificarActiva();
+        if (importe <= 0 || importe > saldo()) {
+            throw new ReglaNegocioException("El importe tiene que ser mayor a 0 y no superar el saldo de " + saldo());
+        }
+        if (cuotas < 1) {
+            throw new ReglaNegocioException("El pago tiene que tener al menos una cuota");
+        }
+        Pago pago = new Pago(fecha, importe, medio, cuotas);
+        pagos.add(pago);
+        if (estado == EstadoReserva.PENDIENTE && montoPagado() >= total * 0.30) {
+            estado = EstadoReserva.CONFIRMADA;
+        }
+        return pago;
+    }
+
+    public Cancelacion cancelar(String motivo, LocalDate hoy, PoliticaCancelacion politica)
+            throws ReglaNegocioException {
+        verificarActiva();
+        int dias = salida.diasHastaInicio(hoy);
+        double porcentaje = politica.porcentajeDevolucion(dias);
+        double importe = montoPagado() * porcentaje;
+        MedioPago medioSena = pagos.isEmpty() ? null : pagos.get(0).getMedio();
+        estado = EstadoReserva.ANULADA;
+        cancelacion = new Cancelacion(hoy, motivo, importe, medioSena);
+        salida.actualizarEstado();
+        return cancelacion;
+    }
+
+    public void agregarNota(String descripcion, double importe) {
+        notas.add(new NotaAjuste(LocalDate.now(), descripcion, importe));
+    }
+
+    public void contratarServicio(String doc, ServicioAdicional s) throws ReglaNegocioException {
+        verificarActiva();
+        Pasajero p = buscarPasajero(doc);
+        p.agregarServicio(s);
+        total += s.getPrecio();
+        if (!pagos.isEmpty()) {
+            agregarNota("Adicional " + s.getNombre() + " para " + p.getNombreCompleto(), s.getPrecio());
+        }
+    }
+
+    public void reemplazarPasajero(String docAnterior, Pasajero nuevo, LocalDate hoy) throws ReglaNegocioException {
+        verificarActiva();
+        if (salida.diasHastaInicio(hoy) < 3) {
+            throw new ReglaNegocioException("Los pasajeros se pueden reemplazar hasta 3 días antes de la salida");
+        }
+        Pasajero anterior = buscarPasajero(docAnterior);
+        if (!salida.admitePasajero(nuevo)) {
+            throw new ReglaNegocioException("El pasajero " + nuevo.getNombreCompleto() + " no cumple la edad mínima del tour");
+        }
+        pasajeros.set(pasajeros.indexOf(anterior), nuevo);
+        agregarNota("Reemplazo de " + anterior.getNombreCompleto() + " por " + nuevo.getNombreCompleto(), 0.0);
+    }
+
+    private void verificarActiva() throws ReglaNegocioException {
+        if (estado == EstadoReserva.ANULADA || estado == EstadoReserva.FINALIZADA) {
+            throw new ReglaNegocioException("La reserva " + numero + " está " + estado.getDescripcion().toLowerCase());
+        }
+    }
+
+    private Pasajero buscarPasajero(String doc) throws ReglaNegocioException {
+        for (Pasajero p : pasajeros) {
+            if (p.getDocumento().equals(doc)) {
+                return p;
+            }
+        }
+        throw new ReglaNegocioException("La reserva " + numero + " no tiene un pasajero con documento " + doc);
     }
 }
