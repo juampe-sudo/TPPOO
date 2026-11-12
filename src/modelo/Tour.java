@@ -92,4 +92,8 @@ public abstract class Tour {
         }
         tarifas.add(new Tarifa(temporada, desde, hasta, precio));
     }
+
+    public void agregarServicio(String nombre, double precio, boolean obligatorio) {
+        adicionales.add(new ServicioAdicional(nombre, precio, obligatorio));
+    }
 }
