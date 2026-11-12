@@ -73,16 +73,13 @@ public class ControladorReservas {
 
     public void contratarServicio(String docPasajero, String servicio) throws ReglaNegocioException {
         verificarReservaEnCurso();
-        ServicioAdicional elegido = null;
-        for (ServicioAdicional s : reservaEnCurso.getSalida().getTour().getAdicionales()) {
-            if (s.getNombre().equalsIgnoreCase(servicio)) {
-                elegido = s;
-            }
-        }
-        if (elegido == null) {
-            throw new ReglaNegocioException("El tour no ofrece el servicio " + servicio);
-        }
-        reservaEnCurso.contratarServicio(docPasajero, elegido);
+        reservaEnCurso.contratarServicio(docPasajero, buscarServicio(reservaEnCurso, servicio));
+    }
+
+    public void contratarServicio(int nro, String docPasajero, String servicio) throws ReglaNegocioException {
+        Reserva reserva = buscarReserva(nro);
+        reserva.contratarServicio(docPasajero, buscarServicio(reserva, servicio));
+        guardar(reserva);
     }
 
     public Reserva confirmarReserva() throws ReglaNegocioException {
@@ -141,6 +138,15 @@ public class ControladorReservas {
             throw new ReglaNegocioException("No existe la reserva " + nro);
         }
         return reserva;
+    }
+
+    private ServicioAdicional buscarServicio(Reserva reserva, String servicio) throws ReglaNegocioException {
+        for (ServicioAdicional s : reserva.getSalida().getTour().getAdicionales()) {
+            if (s.getNombre().equalsIgnoreCase(servicio)) {
+                return s;
+            }
+        }
+        throw new ReglaNegocioException("El tour no ofrece el servicio " + servicio);
     }
 
     private void verificarReservaEnCurso() throws ReglaNegocioException {
