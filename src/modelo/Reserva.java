@@ -140,7 +140,8 @@ public class Reserva implements Serializable {
             throws ReglaNegocioException {
         verificarActiva();
         if (importe <= 0 || importe > saldo()) {
-            throw new ReglaNegocioException("El importe tiene que ser mayor a 0 y no superar el saldo de " + saldo());
+            throw new ReglaNegocioException("El importe tiene que ser mayor a 0 y no superar el saldo de USD "
+                    + String.format("%.2f", saldo()));
         }
         if (cuotas < 1) {
             throw new ReglaNegocioException("El pago tiene que tener al menos una cuota");

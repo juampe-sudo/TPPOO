@@ -158,7 +158,7 @@ public class ControladorSalidasTest {
         List<String> procesado = controlador.controlarPlazos(hoy);
 
         assertEquals(2, procesado.size());
-        assertEquals("Reserva 2 anulada por falta de pago. Se devuelven USD 240.0", procesado.get(1));
+        assertEquals("Reserva 2 anulada por falta de pago. Se devuelven USD " + String.format("%.2f", 240.0), procesado.get(1));
         assertEquals(EstadoSalida.CANCELADA, sinMinimo.getEstado());
         assertEquals("No alcanzó el cupo mínimo", sola.getCancelacion().getMotivo());
         assertEquals(600.0, sola.getCancelacion().getImporteDevuelto(), 0.001);

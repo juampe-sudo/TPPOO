@@ -154,7 +154,7 @@ public class ControladorSalidas {
                 reservas.guardar(r);
                 salidas.guardar(s);
                 procesado.add("Reserva " + r.getNumero() + " anulada por falta de pago. Se devuelven USD "
-                        + c.getImporteDevuelto());
+                        + String.format("%.2f", c.getImporteDevuelto()));
             }
         }
         return procesado;
