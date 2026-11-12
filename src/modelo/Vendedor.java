@@ -18,4 +18,9 @@ public class Vendedor extends Empleado {
     public String getRol() {
         return "Vendedor";
     }
+
+    public double calcularComision(double monto) {
+        double factor = comision > 1 ? comision / 100.0 : comision;
+        return monto * factor;
+    }
 }

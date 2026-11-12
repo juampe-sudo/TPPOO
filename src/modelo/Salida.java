@@ -210,8 +210,57 @@ public class Salida {
         return lista;
     }
 
+    public void iniciar() throws ReglaNegocioException {
+        if (estado != EstadoSalida.CONFIRMADA && estado != EstadoSalida.COMPLETA) {
+            throw new ReglaNegocioException("La salida " + codigo + " no se puede iniciar porque está "
+                    + estado.getDescripcion().toLowerCase());
+        }
+        if (guia == null) {
+            throw new ReglaNegocioException("La salida " + codigo + " no tiene guía asignado");
+        }
+        if (vehiculo == null) {
+            throw new ReglaNegocioException("La salida " + codigo + " no tiene vehículo asignado");
+        }
+        if (!listaEmitida) {
+            throw new ReglaNegocioException("La salida " + codigo + " no tiene la lista de pasajeros emitida");
+        }
+        estado = EstadoSalida.EN_CURSO;
+    }
+
+    public void finalizar() throws ReglaNegocioException {
+        if (estado != EstadoSalida.EN_CURSO) {
+            throw new ReglaNegocioException("La salida " + codigo + " no está en curso");
+        }
+        estado = EstadoSalida.FINALIZADA;
+        for (Reserva r : reservas) {
+            if (reservaActiva(r)) {
+                r.finalizar();
+            }
+        }
+    }
+
+    public void cancelar() throws ReglaNegocioException {
+        if (!sinIniciar()) {
+            throw new ReglaNegocioException("La salida " + codigo + " no se puede cancelar porque está "
+                    + estado.getDescripcion().toLowerCase());
+        }
+        estado = EstadoSalida.CANCELADA;
+    }
+
     public boolean seSuperponeCon(Salida otra) {
         return !fechaInicio.isAfter(otra.fechaFin) && !fechaFin.isBefore(otra.fechaInicio);
+    }
+
+    public double totalAdicionalesVendidos() {
+        double total = 0;
+        for (Reserva r : reservas) {
+            if (r.getEstado() != EstadoReserva.ANULADA) {
+                for (Pasajero p : r.getPasajeros()) {
+                    total += p.totalServicios();
+                }
+            }
+        }
+        return total;
     }
 
     public int diasDeDuracion() {
