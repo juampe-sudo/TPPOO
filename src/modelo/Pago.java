@@ -11,7 +11,7 @@ public class Pago {
     private MedioPago medio;
     private int cuotas;
 
-    public Pago(LocalDate fecha, double importe, MedioPago medio, int cuotas) {
+    Pago(LocalDate fecha, double importe, MedioPago medio, int cuotas) {
         this.fecha = fecha;
         this.importe = importe;
         this.medio = medio;
@@ -32,5 +32,12 @@ public class Pago {
 
     public int getCuotas() {
         return cuotas;
+    }
+
+    public double getRecargo() {
+        if (medio == MedioPago.TARJETA && cuotas > 1) {
+            return importe * 0.07;
+        }
+        return 0.0;
     }
 }
