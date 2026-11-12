@@ -1,5 +1,6 @@
 package estrategias;
 
+import excepciones.ReglaNegocioException;
 import modelo.Reserva;
 
 public class PromocionGrupo implements Promocion {
@@ -13,7 +14,10 @@ public class PromocionGrupo implements Promocion {
     }
 
     @Override
-    public double calcularDescuento(Reserva r) {
-        return 0;
+    public double calcularDescuento(Reserva r) throws ReglaNegocioException {
+        if (r.cantidadPasajeros() >= minimoPasajeros) {
+            return r.subtotalTour() * porcentaje;
+        }
+        return 0.0;
     }
 }

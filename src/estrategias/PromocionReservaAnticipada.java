@@ -1,6 +1,9 @@
 package estrategias;
 
+import excepciones.ReglaNegocioException;
 import modelo.Reserva;
+
+import java.time.temporal.ChronoUnit;
 
 public class PromocionReservaAnticipada implements Promocion {
 
@@ -13,7 +16,11 @@ public class PromocionReservaAnticipada implements Promocion {
     }
 
     @Override
-    public double calcularDescuento(Reserva r) {
-        return 0;
+    public double calcularDescuento(Reserva r) throws ReglaNegocioException {
+        long anticipacion = ChronoUnit.DAYS.between(r.getFecha(), r.getSalida().getFechaInicio());
+        if (anticipacion > diasMinimos) {
+            return r.subtotalTour() * porcentaje;
+        }
+        return 0.0;
     }
 }

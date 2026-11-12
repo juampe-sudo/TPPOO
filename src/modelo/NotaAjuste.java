@@ -8,7 +8,7 @@ public class NotaAjuste {
     private String descripcion;
     private double importe;
 
-    public NotaAjuste(LocalDate fecha, String descripcion, double importe) {
+    NotaAjuste(LocalDate fecha, String descripcion, double importe) {
         this.fecha = fecha;
         this.descripcion = descripcion;
         this.importe = importe;
