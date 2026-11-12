@@ -190,6 +190,10 @@ public class Reserva {
         agregarNota("Reemplazo de " + anterior.getNombreCompleto() + " por " + nuevo.getNombreCompleto(), 0.0);
     }
 
+    void finalizar() {
+        estado = EstadoReserva.FINALIZADA;
+    }
+
     private void verificarActiva() throws ReglaNegocioException {
         if (estado == EstadoReserva.ANULADA || estado == EstadoReserva.FINALIZADA) {
             throw new ReglaNegocioException("La reserva " + numero + " está " + estado.getDescripcion().toLowerCase());

@@ -35,4 +35,8 @@ public class Liquidacion {
     public double getMontoAdicionales() {
         return montoAdicionales;
     }
+
+    public double getTotal() {
+        return montoDias + montoAdicionales;
+    }
 }

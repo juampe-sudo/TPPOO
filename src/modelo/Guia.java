@@ -1,6 +1,8 @@
 package modelo;
 
 import enums.CategoriaTour;
+import enums.EstadoSalida;
+import excepciones.ReglaNegocioException;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -43,5 +45,40 @@ public class Guia extends Empleado {
     @Override
     public String getRol() {
         return "Guía";
+    }
+
+    public boolean estaHabilitado(CategoriaTour c) {
+        return categorias.contains(c);
+    }
+
+    public boolean estaDisponible(Salida s) {
+        for (Salida existente : salidas) {
+            if (existente != s && existente.getEstado() != EstadoSalida.CANCELADA && existente.seSuperponeCon(s)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public Liquidacion liquidar(Salida s) throws ReglaNegocioException {
+        if (s == null) {
+            throw new ReglaNegocioException("Hay que indicar la salida a liquidar");
+        }
+        if (s.getEstado() != EstadoSalida.FINALIZADA) {
+            throw new ReglaNegocioException("La salida " + s.getCodigo() + " todavía no está finalizada");
+        }
+        if (s.getGuia() != this) {
+            throw new ReglaNegocioException("La salida " + s.getCodigo() + " no la guió " + getNombreCompleto());
+        }
+        int dias = s.diasDeDuracion();
+        double montoDias = dias * honorarioPorDia;
+        double montoAdicionales = s.totalAdicionalesVendidos() * 0.05;
+        return new Liquidacion(this, s, dias, montoDias, montoAdicionales);
+    }
+
+    void agregarSalida(Salida s) {
+        if (!salidas.contains(s)) {
+            salidas.add(s);
+        }
     }
 }
