@@ -2,9 +2,12 @@ package modelo;
 
 import enums.MedioPago;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Cancelacion {
+public class Cancelacion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private LocalDate fecha;
     private String motivo;

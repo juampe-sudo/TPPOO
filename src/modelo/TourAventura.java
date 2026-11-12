@@ -10,6 +10,8 @@ import java.util.List;
 
 public class TourAventura extends Tour {
 
+    private static final long serialVersionUID = 1L;
+
     private NivelDificultad nivelDificultad;
     private int edadMinima;
 

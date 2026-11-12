@@ -2,9 +2,12 @@ package modelo;
 
 import enums.TipoActividad;
 
+import java.io.Serializable;
 import java.time.LocalTime;
 
-public class Actividad implements Comparable<Actividad> {
+public class Actividad implements Comparable<Actividad>, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int dia;
     private int orden;
