@@ -11,6 +11,7 @@ import excepciones.CupoInsuficienteException;
 import excepciones.ReglaNegocioException;
 import modelo.Cancelacion;
 import modelo.Cliente;
+import modelo.Empleado;
 import modelo.Pago;
 import modelo.Pasajero;
 import modelo.Reserva;
@@ -27,14 +28,17 @@ public class ControladorReservas {
     private Repositorio<Cliente> clientes;
     private Repositorio<Salida> salidas;
     private Repositorio<Reserva> reservas;
+    private Repositorio<Empleado> empleados;
     private List<Promocion> promociones;
     private Reserva reservaEnCurso;
 
     public ControladorReservas(Repositorio<Cliente> clientes, Repositorio<Salida> salidas,
-                               Repositorio<Reserva> reservas, List<Promocion> promociones) {
+                               Repositorio<Reserva> reservas, Repositorio<Empleado> empleados,
+                               List<Promocion> promociones) {
         this.clientes = clientes;
         this.salidas = salidas;
         this.reservas = reservas;
+        this.empleados = empleados;
         this.promociones = promociones;
         this.reservaEnCurso = null;
     }
@@ -52,6 +56,18 @@ public class ControladorReservas {
             throw new ReglaNegocioException("El cliente ya está registrado: " + existente);
         }
         clientes.guardar(c);
+    }
+
+    public Cliente buscarCliente(String doc) {
+        return clientes.buscar(doc);
+    }
+
+    public Vendedor buscarVendedor(int legajo) throws ReglaNegocioException {
+        Empleado e = empleados.buscar(String.valueOf(legajo));
+        if (!(e instanceof Vendedor)) {
+            throw new ReglaNegocioException("No hay un vendedor con legajo " + legajo);
+        }
+        return (Vendedor) e;
     }
 
     public Reserva iniciarReserva(String docCliente, String codSalida, Vendedor vendedor)
