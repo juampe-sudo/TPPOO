@@ -3,6 +3,11 @@ package modelo;
 import enums.CategoriaTour;
 import enums.NivelDificultad;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
 public class TourAventura extends Tour {
 
     private NivelDificultad nivelDificultad;
@@ -26,5 +31,21 @@ public class TourAventura extends Tour {
 
     public int getEdadMinima() {
         return edadMinima;
+    }
+
+    @Override
+    public boolean esApto(Pasajero p, LocalDate fecha) {
+        return p.edadAl(fecha) >= edadMinima;
+    }
+
+    @Override
+    public List<ServicioAdicional> getServiciosObligatorios() {
+        List<ServicioAdicional> obligatorios = new ArrayList<>();
+        for (ServicioAdicional s : getAdicionales()) {
+            if (s.isObligatorio()) {
+                obligatorios.add(s);
+            }
+        }
+        return Collections.unmodifiableList(obligatorios);
     }
 }

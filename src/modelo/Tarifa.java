@@ -33,4 +33,8 @@ public class Tarifa {
     public double getPrecioBase() {
         return precioBase;
     }
+
+    public boolean estaVigente(LocalDate fecha) {
+        return !fecha.isBefore(vigenciaDesde) && !fecha.isAfter(vigenciaHasta);
+    }
 }

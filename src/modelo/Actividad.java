@@ -4,7 +4,7 @@ import enums.TipoActividad;
 
 import java.time.LocalTime;
 
-public class Actividad {
+public class Actividad implements Comparable<Actividad> {
 
     private int dia;
     private int orden;
@@ -51,5 +51,13 @@ public class Actividad {
 
     public Proveedor getProveedor() {
         return proveedor;
+    }
+
+    @Override
+    public int compareTo(Actividad o) {
+        if (dia != o.dia) {
+            return Integer.compare(dia, o.dia);
+        }
+        return Integer.compare(orden, o.orden);
     }
 }

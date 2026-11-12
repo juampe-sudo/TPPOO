@@ -3,6 +3,7 @@ package modelo;
 import enums.TipoPasajero;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 public class Pasajero extends Persona {
 
@@ -34,5 +35,9 @@ public class Pasajero extends Persona {
 
     public String getRestricciones() {
         return restricciones;
+    }
+
+    public int edadAl(LocalDate fecha) {
+        return Period.between(fechaNacimiento, fecha).getYears();
     }
 }
