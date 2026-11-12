@@ -105,4 +105,8 @@ public abstract class Tour {
         }
         throw new ReglaNegocioException("El tour " + codigo + " no tiene una tarifa vigente para el " + fecha);
     }
+
+    public boolean esApto(Pasajero p, LocalDate fecha) {
+        return true;
+    }
 }

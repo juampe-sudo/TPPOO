@@ -3,6 +3,8 @@ package modelo;
 import enums.CategoriaTour;
 import enums.NivelDificultad;
 
+import java.time.LocalDate;
+
 public class TourAventura extends Tour {
 
     private NivelDificultad nivelDificultad;
@@ -26,5 +28,10 @@ public class TourAventura extends Tour {
 
     public int getEdadMinima() {
         return edadMinima;
+    }
+
+    @Override
+    public boolean esApto(Pasajero p, LocalDate fecha) {
+        return p.edadAl(fecha) >= edadMinima;
     }
 }
