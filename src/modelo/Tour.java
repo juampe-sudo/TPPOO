@@ -113,4 +113,16 @@ public abstract class Tour {
     public List<ServicioAdicional> getServiciosObligatorios() {
         return Collections.emptyList();
     }
+
+    public Salida programarSalida(String codigo, LocalDate inicio, int cupo) throws ReglaNegocioException {
+        if (!inicio.isAfter(LocalDate.now())) {
+            throw new ReglaNegocioException("La fecha de inicio de la salida tiene que ser futura");
+        }
+        getTarifaVigente(inicio);
+        if (cupo < cupoMinimo || cupo > cupoMaximo) {
+            throw new ReglaNegocioException("El cupo tiene que estar entre " + cupoMinimo + " y " + cupoMaximo);
+        }
+        LocalDate fin = inicio.plusDays(duracionDias - 1);
+        return new Salida(codigo, this, inicio, fin, cupoMinimo, cupo);
+    }
 }
