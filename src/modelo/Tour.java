@@ -96,4 +96,13 @@ public abstract class Tour {
     public void agregarServicio(String nombre, double precio, boolean obligatorio) {
         adicionales.add(new ServicioAdicional(nombre, precio, obligatorio));
     }
+
+    public Tarifa getTarifaVigente(LocalDate fecha) throws ReglaNegocioException {
+        for (Tarifa t : tarifas) {
+            if (t.estaVigente(fecha)) {
+                return t;
+            }
+        }
+        throw new ReglaNegocioException("El tour " + codigo + " no tiene una tarifa vigente para el " + fecha);
+    }
 }
