@@ -6,12 +6,15 @@ import estrategias.PoliticaCancelacion;
 import estrategias.Promocion;
 import excepciones.ReglaNegocioException;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Reserva {
+public class Reserva implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private int numero;
     private LocalDate fecha;
@@ -190,6 +193,16 @@ public class Reserva {
         }
         pasajeros.set(pasajeros.indexOf(anterior), nuevo);
         agregarNota("Reemplazo de " + anterior.getNombreCompleto() + " por " + nuevo.getNombreCompleto(), 0.0);
+    }
+
+    public void revincular(Cliente cliente, Salida salida, Vendedor vendedor) {
+        this.cliente = cliente;
+        this.salida = salida;
+        this.vendedor = vendedor;
+    }
+
+    void finalizar() {
+        estado = EstadoReserva.FINALIZADA;
     }
 
     private void verificarActiva() throws ReglaNegocioException {

@@ -2,9 +2,12 @@ package modelo;
 
 import enums.Temporada;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Tarifa {
+public class Tarifa implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Temporada temporada;
     private LocalDate vigenciaDesde;

@@ -2,6 +2,8 @@ package modelo;
 
 public abstract class Empleado extends Persona {
 
+    private static final long serialVersionUID = 1L;
+
     protected int legajo;
     protected String telefono;
 

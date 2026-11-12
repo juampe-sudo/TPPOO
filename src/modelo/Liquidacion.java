@@ -1,6 +1,10 @@
 package modelo;
 
-public class Liquidacion {
+import java.io.Serializable;
+
+public class Liquidacion implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private Guia guia;
     private Salida salida;
@@ -34,5 +38,9 @@ public class Liquidacion {
 
     public double getMontoAdicionales() {
         return montoAdicionales;
+    }
+
+    public double getTotal() {
+        return montoDias + montoAdicionales;
     }
 }

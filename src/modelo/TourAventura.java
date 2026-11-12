@@ -8,6 +8,7 @@ import java.util.List;
 
 public class TourAventura extends Tour {
 
+    private static final long serialVersionUID = 1L;
     private static final String SEGURO_DE_VIAJE = "Seguro de viaje";
 
     private NivelDificultad nivelDificultad;
