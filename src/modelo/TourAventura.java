@@ -4,11 +4,11 @@ import enums.CategoriaTour;
 import enums.NivelDificultad;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 public class TourAventura extends Tour {
+
+    private static final String SEGURO_DE_VIAJE = "Seguro de viaje";
 
     private NivelDificultad nivelDificultad;
     private int edadMinima;
@@ -40,12 +40,12 @@ public class TourAventura extends Tour {
 
     @Override
     public List<ServicioAdicional> getServiciosObligatorios() {
-        List<ServicioAdicional> obligatorios = new ArrayList<>();
+        List<ServicioAdicional> obligatorios = super.getServiciosObligatorios();
         for (ServicioAdicional s : getAdicionales()) {
-            if (s.isObligatorio()) {
+            if (!s.isObligatorio() && s.getNombre().equalsIgnoreCase(SEGURO_DE_VIAJE)) {
                 obligatorios.add(s);
             }
         }
-        return Collections.unmodifiableList(obligatorios);
+        return obligatorios;
     }
 }
