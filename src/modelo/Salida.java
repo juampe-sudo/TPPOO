@@ -5,6 +5,7 @@ import enums.EstadoSalida;
 import excepciones.CupoInsuficienteException;
 import excepciones.ReglaNegocioException;
 
+import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -12,7 +13,9 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class Salida {
+public class Salida implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String codigo;
     private Tour tour;
@@ -265,6 +268,13 @@ public class Salida {
 
     public int diasDeDuracion() {
         return (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin) + 1;
+    }
+
+    public void revincular(Tour tour, Guia guia, Vehiculo vehiculo, List<Reserva> reservas) {
+        this.tour = tour;
+        this.guia = guia;
+        this.vehiculo = vehiculo;
+        this.reservas = new ArrayList<>(reservas);
     }
 
     private boolean sinIniciar() {

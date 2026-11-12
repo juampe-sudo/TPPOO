@@ -12,6 +12,8 @@ import java.util.Set;
 
 public class Guia extends Empleado {
 
+    private static final long serialVersionUID = 1L;
+
     private List<String> idiomas;
     private Set<CategoriaTour> categorias;
     private double honorarioPorDia;
@@ -74,6 +76,10 @@ public class Guia extends Empleado {
         double montoDias = dias * honorarioPorDia;
         double montoAdicionales = s.totalAdicionalesVendidos() * 0.05;
         return new Liquidacion(this, s, dias, montoDias, montoAdicionales);
+    }
+
+    public void revincular(List<Salida> salidas) {
+        this.salidas = new ArrayList<>(salidas);
     }
 
     void agregarSalida(Salida s) {

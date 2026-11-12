@@ -1,6 +1,10 @@
 package modelo;
 
-public class ServicioAdicional {
+import java.io.Serializable;
+
+public class ServicioAdicional implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     private String nombre;
     private double precio;

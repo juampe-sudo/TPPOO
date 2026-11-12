@@ -11,6 +11,8 @@ import java.util.List;
 
 public class Pasajero extends Persona {
 
+    private static final long serialVersionUID = 1L;
+
     private LocalDate fechaNacimiento;
     private TipoPasajero tipo;
     private String contactoEmergencia;
