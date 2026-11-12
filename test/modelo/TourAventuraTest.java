@@ -5,7 +5,9 @@ import enums.TipoPasajero;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -49,5 +51,24 @@ public class TourAventuraTest {
         Tour cultural = new TourCultural("CUL01", "Anchorage histórico", "Museos", 3, 4, 20);
 
         assertTrue(cultural.esApto(pasajeroNacidoEl(LocalDate.of(2026, 1, 1)), INICIO_SALIDA));
+    }
+
+    @Test
+    void elSeguroDeViajeEsObligatorioEnAventura() {
+        aventura.agregarServicio("Seguro de viaje", 80.0, true);
+        aventura.agregarServicio("Alquiler de crampones", 35.0, false);
+
+        List<ServicioAdicional> obligatorios = aventura.getServiciosObligatorios();
+
+        assertEquals(1, obligatorios.size());
+        assertEquals("Seguro de viaje", obligatorios.get(0).getNombre());
+    }
+
+    @Test
+    void unTourQueNoEsDeAventuraNoTieneServiciosObligatorios() {
+        Tour cultural = new TourCultural("CUL01", "Anchorage histórico", "Museos", 3, 4, 20);
+        cultural.agregarServicio("Almuerzo típico", 40.0, false);
+
+        assertTrue(cultural.getServiciosObligatorios().isEmpty());
     }
 }
