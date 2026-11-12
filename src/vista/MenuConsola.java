@@ -6,8 +6,11 @@ import controladores.ControladorReservas;
 import controladores.ControladorSalidas;
 import enums.CategoriaTour;
 import enums.NivelDificultad;
+import enums.Temporada;
+import enums.TipoActividad;
 import excepciones.ReglaNegocioException;
 import modelo.Actividad;
+import modelo.Proveedor;
 import modelo.ServicioAdicional;
 import modelo.Tarifa;
 import modelo.Tour;
@@ -64,13 +67,17 @@ public class MenuConsola {
             System.out.println();
             System.out.println("--- Administrador ---");
             System.out.println("1. Dar de alta un tour");
-            System.out.println("2. Ver catálogo");
+            System.out.println("2. Modificar un tour");
+            System.out.println("3. Registrar proveedor");
+            System.out.println("4. Ver catálogo");
             System.out.println("0. Volver");
             opcion = leerEntero("Opción: ");
             try {
                 switch (opcion) {
                     case 1 -> altaTour();
-                    case 2 -> verCatalogo();
+                    case 2 -> editarTour(ctrlCatalogo.buscarTour(leerTexto("Código del tour: ")).getCodigo());
+                    case 3 -> registrarProveedor(leerTexto("EIN: "));
+                    case 4 -> verCatalogo();
                     case 0 -> {
                     }
                     default -> System.out.println("Opción inválida");
@@ -105,6 +112,74 @@ public class MenuConsola {
             double precio = leerDouble("Precio del seguro de viaje (es obligatorio en aventura): ");
             ctrlCatalogo.agregarServicio(codigo, "Seguro de viaje", precio, true);
         }
+        System.out.println("Ahora cargá el itinerario, las tarifas y los adicionales");
+        editarTour(codigo);
+    }
+
+    private void editarTour(String codigo) {
+        int opcion;
+        do {
+            System.out.println();
+            System.out.println("Tour " + codigo);
+            System.out.println("1. Agregar actividad al itinerario");
+            System.out.println("2. Agregar tarifa");
+            System.out.println("3. Agregar servicio adicional");
+            System.out.println("0. Terminar");
+            opcion = leerEntero("Opción: ");
+            try {
+                switch (opcion) {
+                    case 1 -> agregarActividad(codigo);
+                    case 2 -> agregarTarifa(codigo);
+                    case 3 -> agregarServicio(codigo);
+                    case 0 -> {
+                    }
+                    default -> System.out.println("Opción inválida");
+                }
+            } catch (ReglaNegocioException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        } while (opcion != 0);
+    }
+
+    private void agregarActividad(String codigo) throws ReglaNegocioException {
+        int dia = leerEntero("Día: ");
+        int orden = leerEntero("Orden dentro del día: ");
+        LocalTime horario = leerHora("Horario");
+        String descripcion = leerTexto("Descripción: ");
+        String lugar = leerTexto("Lugar: ");
+        TipoActividad tipo = elegir("Tipo: ", TipoActividad.values());
+        String ein = leerTexto("EIN del proveedor (enter si no hay): ");
+        if (!ein.isEmpty() && ctrlCatalogo.buscarProveedor(ein) == null) {
+            System.out.println("Ese proveedor no está registrado, cargá sus datos");
+            registrarProveedor(ein);
+        }
+        ctrlCatalogo.agregarActividad(codigo, dia, orden, horario, descripcion, lugar, tipo, ein);
+        System.out.println("Actividad agregada");
+    }
+
+    private void agregarTarifa(String codigo) throws ReglaNegocioException {
+        Temporada temporada = elegir("Temporada: ", Temporada.values());
+        LocalDate desde = leerFecha("Vigente desde");
+        LocalDate hasta = leerFecha("Vigente hasta");
+        double precio = leerDouble("Precio base por pasajero (USD): ");
+        ctrlCatalogo.agregarTarifa(codigo, temporada, desde, hasta, precio);
+        System.out.println("Tarifa agregada");
+    }
+
+    private void agregarServicio(String codigo) throws ReglaNegocioException {
+        String nombre = leerTexto("Nombre del servicio: ");
+        double precio = leerDouble("Precio (USD): ");
+        boolean obligatorio = leerSiNo("¿Es obligatorio?");
+        ctrlCatalogo.agregarServicio(codigo, nombre, precio, obligatorio);
+        System.out.println("Servicio agregado");
+    }
+
+    private void registrarProveedor(String ein) throws ReglaNegocioException {
+        String nombre = leerTexto("Nombre del proveedor: ");
+        String contacto = leerTexto("Contacto: ");
+        String servicio = leerTexto("Servicio que presta: ");
+        ctrlCatalogo.registrarProveedor(new Proveedor(nombre, ein, contacto, servicio));
+        System.out.println("Proveedor registrado");
     }
 
     private void verCatalogo() {
