@@ -75,7 +75,15 @@ public abstract class Tour {
     }
 
     public void agregarActividad(int dia, int orden, LocalTime horario, String descripcion, String lugar,
-                                 TipoActividad tipo, Proveedor proveedor) {
+                                 TipoActividad tipo, Proveedor proveedor) throws ReglaNegocioException {
+        if (dia < 1 || dia > duracionDias) {
+            throw new ReglaNegocioException("El tour dura " + duracionDias + " días, no se puede cargar una actividad el día " + dia);
+        }
+        for (Actividad a : actividades) {
+            if (a.getDia() == dia && a.getOrden() == orden) {
+                throw new ReglaNegocioException("Ya hay una actividad el día " + dia + " con orden " + orden);
+            }
+        }
         actividades.add(new Actividad(dia, orden, horario, descripcion, lugar, tipo, proveedor));
         Collections.sort(actividades);
     }
