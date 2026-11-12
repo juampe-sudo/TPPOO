@@ -4,6 +4,6 @@ public class PoliticaCancelacionAgencia implements PoliticaCancelacion {
 
     @Override
     public double porcentajeDevolucion(int dias) {
-        return 0;
+        return 1.0;
     }
 }
