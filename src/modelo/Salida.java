@@ -1,6 +1,8 @@
 package modelo;
 
+import enums.EstadoReserva;
 import enums.EstadoSalida;
+import excepciones.CupoInsuficienteException;
 import excepciones.ReglaNegocioException;
 
 import java.time.LocalDate;
@@ -82,6 +84,10 @@ public class Salida {
         return listaEmitida;
     }
 
+    public boolean admiteReservas() {
+        return estado == EstadoSalida.PROGRAMADA || estado == EstadoSalida.CONFIRMADA;
+    }
+
     public boolean admitePasajero(Pasajero p) throws ReglaNegocioException {
         if (!tour.esApto(p, fechaInicio)) {
             return false;
@@ -94,14 +100,75 @@ public class Salida {
         return true;
     }
 
+    public int lugaresOcupados() {
+        int ocupados = 0;
+        for (Reserva r : reservas) {
+            if (reservaActiva(r)) {
+                ocupados += r.cantidadPasajeros();
+            }
+        }
+        return ocupados;
+    }
+
+    public int lugaresDisponibles() {
+        return Math.max(0, cupoMaximo - lugaresOcupados());
+    }
+
     public double getPrecioBase() throws ReglaNegocioException {
         return tour.getTarifaVigente(fechaInicio).getPrecioBase();
+    }
+
+    public void agregarReserva(Reserva r) throws ReglaNegocioException {
+        if (!admiteReservas()) {
+            throw new ReglaNegocioException("La salida " + codigo + " no admite reservas porque está "
+                    + estado.getDescripcion().toLowerCase());
+        }
+        if (r.cantidadPasajeros() > lugaresDisponibles()) {
+            throw new CupoInsuficienteException(lugaresDisponibles());
+        }
+        reservas.add(r);
+        actualizarEstado();
+    }
+
+    public void actualizarEstado() {
+        if (!sinIniciar()) {
+            return;
+        }
+        if (lugaresOcupados() >= cupoMaximo) {
+            estado = EstadoSalida.COMPLETA;
+            return;
+        }
+        int confirmados = 0;
+        for (Reserva r : reservas) {
+            if (r.getEstado() == EstadoReserva.CONFIRMADA) {
+                confirmados += r.cantidadPasajeros();
+            }
+        }
+        if (confirmados >= cupoMinimo) {
+            estado = EstadoSalida.CONFIRMADA;
+        } else {
+            estado = EstadoSalida.PROGRAMADA;
+        }
     }
 
     public int diasHastaInicio(LocalDate hoy) {
         return (int) ChronoUnit.DAYS.between(hoy, fechaInicio);
     }
 
-    public void actualizarEstado() {
+    public boolean seSuperponeCon(Salida otra) {
+        return !fechaInicio.isAfter(otra.fechaFin) && !fechaFin.isBefore(otra.fechaInicio);
+    }
+
+    public int diasDeDuracion() {
+        return (int) ChronoUnit.DAYS.between(fechaInicio, fechaFin) + 1;
+    }
+
+    private boolean sinIniciar() {
+        return estado == EstadoSalida.PROGRAMADA || estado == EstadoSalida.CONFIRMADA
+                || estado == EstadoSalida.COMPLETA;
+    }
+
+    private boolean reservaActiva(Reserva r) {
+        return r.getEstado() == EstadoReserva.PENDIENTE || r.getEstado() == EstadoReserva.CONFIRMADA;
     }
 }
