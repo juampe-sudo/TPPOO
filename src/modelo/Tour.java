@@ -1,8 +1,11 @@
 package modelo;
 
 import enums.CategoriaTour;
+import enums.Temporada;
 import enums.TipoActividad;
+import excepciones.ReglaNegocioException;
 
+import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -75,5 +78,18 @@ public abstract class Tour {
                                  TipoActividad tipo, Proveedor proveedor) {
         actividades.add(new Actividad(dia, orden, horario, descripcion, lugar, tipo, proveedor));
         Collections.sort(actividades);
+    }
+
+    public void agregarTarifa(Temporada temporada, LocalDate desde, LocalDate hasta, double precio)
+            throws ReglaNegocioException {
+        if (desde.isAfter(hasta)) {
+            throw new ReglaNegocioException("La vigencia de la tarifa empieza después de terminar");
+        }
+        for (Tarifa t : tarifas) {
+            if (!desde.isAfter(t.getVigenciaHasta()) && !hasta.isBefore(t.getVigenciaDesde())) {
+                throw new ReglaNegocioException("La vigencia se superpone con otra tarifa del tour");
+            }
+        }
+        tarifas.add(new Tarifa(temporada, desde, hasta, precio));
     }
 }
