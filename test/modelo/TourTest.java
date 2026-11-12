@@ -23,54 +23,42 @@ public class TourTest {
     }
 
     @Test
-    void agregaUnaTarifaQueNoSeSuperpone() {
+    void agregarTarifaSinSuperposicion() {
         assertDoesNotThrow(() -> tour.agregarTarifa(Temporada.MEDIA,
                 LocalDate.of(2027, 9, 1), LocalDate.of(2027, 11, 30), 1500.0));
         assertEquals(2, tour.getTarifas().size());
     }
 
     @Test
-    void rechazaUnaTarifaQueEmpiezaDentroDeOtra() {
+    void agregarTarifaSuperpuesta() {
         assertThrows(ReglaNegocioException.class, () -> tour.agregarTarifa(Temporada.MEDIA,
                 LocalDate.of(2027, 8, 15), LocalDate.of(2027, 10, 31), 1500.0));
+        assertThrows(ReglaNegocioException.class, () -> tour.agregarTarifa(Temporada.BAJA,
+                LocalDate.of(2027, 4, 1), LocalDate.of(2027, 6, 1), 1000.0));
+        assertThrows(ReglaNegocioException.class, () -> tour.agregarTarifa(Temporada.BAJA,
+                LocalDate.of(2027, 1, 1), LocalDate.of(2027, 12, 31), 1000.0));
         assertEquals(1, tour.getTarifas().size());
     }
 
     @Test
-    void rechazaUnaTarifaQueTerminaDentroDeOtra() {
-        assertThrows(ReglaNegocioException.class, () -> tour.agregarTarifa(Temporada.BAJA,
-                LocalDate.of(2027, 4, 1), LocalDate.of(2027, 6, 1), 1000.0));
-    }
-
-    @Test
-    void rechazaUnaTarifaQueContieneAOtra() {
-        assertThrows(ReglaNegocioException.class, () -> tour.agregarTarifa(Temporada.BAJA,
-                LocalDate.of(2027, 1, 1), LocalDate.of(2027, 12, 31), 1000.0));
-    }
-
-    @Test
-    void rechazaUnaTarifaConVigenciaInvertida() {
+    void agregarTarifaFechasInvertidas() {
         assertThrows(ReglaNegocioException.class, () -> tour.agregarTarifa(Temporada.BAJA,
                 LocalDate.of(2027, 12, 31), LocalDate.of(2027, 10, 1), 1000.0));
     }
 
     @Test
-    void devuelveLaTarifaVigenteParaLaFecha() throws ReglaNegocioException {
+    void tarifaVigentePorFecha() throws ReglaNegocioException {
         tour.agregarTarifa(Temporada.MEDIA, LocalDate.of(2027, 9, 1), LocalDate.of(2027, 11, 30), 1500.0);
 
         Tarifa tarifa = tour.getTarifaVigente(LocalDate.of(2027, 10, 10));
 
         assertSame(Temporada.MEDIA, tarifa.getTemporada());
         assertEquals(1500.0, tarifa.getPrecioBase());
-    }
-
-    @Test
-    void devuelveLaTarifaEnElUltimoDiaDeVigencia() throws ReglaNegocioException {
         assertSame(Temporada.ALTA, tour.getTarifaVigente(LocalDate.of(2027, 8, 31)).getTemporada());
     }
 
     @Test
-    void lanzaExcepcionSiNoHayTarifaVigente() {
+    void sinTarifaVigente() {
         assertThrows(ReglaNegocioException.class, () -> tour.getTarifaVigente(LocalDate.of(2027, 9, 1)));
     }
 }

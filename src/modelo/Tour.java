@@ -115,8 +115,8 @@ public abstract class Tour {
     }
 
     public Salida programarSalida(String codigo, LocalDate inicio, int cupo) throws ReglaNegocioException {
-        if (!inicio.isAfter(LocalDate.now())) {
-            throw new ReglaNegocioException("La fecha de inicio de la salida tiene que ser futura");
+        if (inicio.isBefore(LocalDate.now())) {
+            throw new ReglaNegocioException("La fecha de inicio de la salida ya pasó");
         }
         getTarifaVigente(inicio);
         if (cupo < cupoMinimo || cupo > cupoMaximo) {
