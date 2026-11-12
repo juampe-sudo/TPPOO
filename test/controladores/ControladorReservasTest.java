@@ -160,4 +160,18 @@ public class ControladorReservasTest {
         assertThrows(ReglaNegocioException.class, () -> controlador.reemplazarPasajero(1, "99999", nuevo));
         assertTrue(reserva.getNotas().get(0).getDescripcion().contains("Carla Ruiz"));
     }
+
+    @Test
+    void contrataUnAdicionalSobreUnaReservaYaPagada() throws ReglaNegocioException {
+        Reserva reserva = reservar(2);
+        controlador.registrarPago(1, 600.0, MedioPago.EFECTIVO, 1);
+
+        controlador.contratarServicio(1, "30001", "Cena de despedida");
+
+        assertEquals(2100.0, reserva.getTotal(), 0.001);
+        assertEquals(1, reserva.getPasajeros().get(1).getServicios().size());
+        assertEquals(1, reserva.getNotas().size());
+        assertThrows(ReglaNegocioException.class, () -> controlador.contratarServicio(1, "30001", "Kayak"));
+        assertThrows(ReglaNegocioException.class, () -> controlador.contratarServicio(5, "30001", "Cena de despedida"));
+    }
 }
