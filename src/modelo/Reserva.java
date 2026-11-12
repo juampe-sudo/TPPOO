@@ -1,6 +1,8 @@
 package modelo;
 
 import enums.EstadoReserva;
+import estrategias.Promocion;
+import excepciones.ReglaNegocioException;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -77,5 +79,42 @@ public class Reserva {
 
     public Cancelacion getCancelacion() {
         return cancelacion;
+    }
+
+    public void agregarPasajero(Pasajero p) throws ReglaNegocioException {
+        if (!salida.admitePasajero(p)) {
+            throw new ReglaNegocioException("El pasajero " + p.getNombreCompleto() + " no cumple la edad mínima del tour");
+        }
+        pasajeros.add(p);
+    }
+
+    public int cantidadPasajeros() {
+        return pasajeros.size();
+    }
+
+    public double subtotalTour() throws ReglaNegocioException {
+        double precioBase = salida.getPrecioBase();
+        double subtotal = 0;
+        for (Pasajero p : pasajeros) {
+            subtotal += p.calcularImporte(precioBase, salida.getFechaInicio());
+        }
+        return subtotal;
+    }
+
+    public double calcularTotal(List<Promocion> promociones) throws ReglaNegocioException {
+        double subtotal = subtotalTour();
+        double adicionales = 0;
+        for (Pasajero p : pasajeros) {
+            adicionales += p.totalServicios();
+        }
+        double mayorDescuento = 0;
+        for (Promocion promo : promociones) {
+            double descuento = promo.calcularDescuento(this);
+            if (descuento > mayorDescuento) {
+                mayorDescuento = descuento;
+            }
+        }
+        total = subtotal - mayorDescuento + adicionales;
+        return total;
     }
 }

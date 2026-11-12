@@ -1,8 +1,10 @@
 package modelo;
 
 import enums.EstadoSalida;
+import excepciones.ReglaNegocioException;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -78,5 +80,28 @@ public class Salida {
 
     public boolean isListaEmitida() {
         return listaEmitida;
+    }
+
+    public boolean admitePasajero(Pasajero p) throws ReglaNegocioException {
+        if (!tour.esApto(p, fechaInicio)) {
+            return false;
+        }
+        for (ServicioAdicional s : tour.getServiciosObligatorios()) {
+            if (!p.getServicios().contains(s)) {
+                p.agregarServicio(s);
+            }
+        }
+        return true;
+    }
+
+    public double getPrecioBase() throws ReglaNegocioException {
+        return tour.getTarifaVigente(fechaInicio).getPrecioBase();
+    }
+
+    public int diasHastaInicio(LocalDate hoy) {
+        return (int) ChronoUnit.DAYS.between(hoy, fechaInicio);
+    }
+
+    public void actualizarEstado() {
     }
 }
