@@ -33,4 +33,11 @@ public class Pago {
     public int getCuotas() {
         return cuotas;
     }
+
+    public double getRecargo() {
+        if (medio == MedioPago.TARJETA && cuotas > 1) {
+            return importe * 0.07;
+        }
+        return 0.0;
+    }
 }
