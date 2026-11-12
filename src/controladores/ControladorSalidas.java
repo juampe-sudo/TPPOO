@@ -165,7 +165,9 @@ public class ControladorSalidas {
         if (salida.getGuia() == null) {
             throw new ReglaNegocioException("La salida " + codSalida + " no tiene guía asignado");
         }
-        return salida.getGuia().liquidar(salida);
+        Liquidacion liquidacion = salida.getGuia().liquidar(salida);
+        empleados.guardar(salida.getGuia());
+        return liquidacion;
     }
 
     private List<Cancelacion> cancelar(Salida salida, String motivo, LocalDate hoy) throws ReglaNegocioException {
