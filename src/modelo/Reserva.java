@@ -84,6 +84,7 @@ public class Reserva {
     }
 
     public void agregarPasajero(Pasajero p) throws ReglaNegocioException {
+        verificarDocumentoLibre(p.getDocumento());
         if (!salida.admitePasajero(p)) {
             throw new ReglaNegocioException("El pasajero " + p.getNombreCompleto() + " no cumple la edad mínima del tour");
         }
@@ -183,6 +184,7 @@ public class Reserva {
             throw new ReglaNegocioException("Los pasajeros se pueden reemplazar hasta 3 días antes de la salida");
         }
         Pasajero anterior = buscarPasajero(docAnterior);
+        verificarDocumentoLibre(nuevo.getDocumento());
         if (!salida.admitePasajero(nuevo)) {
             throw new ReglaNegocioException("El pasajero " + nuevo.getNombreCompleto() + " no cumple la edad mínima del tour");
         }
@@ -193,6 +195,14 @@ public class Reserva {
     private void verificarActiva() throws ReglaNegocioException {
         if (estado == EstadoReserva.ANULADA || estado == EstadoReserva.FINALIZADA) {
             throw new ReglaNegocioException("La reserva " + numero + " está " + estado.getDescripcion().toLowerCase());
+        }
+    }
+
+    private void verificarDocumentoLibre(String doc) throws ReglaNegocioException {
+        for (Pasajero p : pasajeros) {
+            if (p.getDocumento().equals(doc)) {
+                throw new ReglaNegocioException("El pasajero con documento " + doc + " ya está en la reserva");
+            }
         }
     }
 
