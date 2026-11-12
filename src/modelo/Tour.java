@@ -101,7 +101,15 @@ public abstract class Tour {
         tarifas.add(new Tarifa(temporada, desde, hasta, precio));
     }
 
-    public void agregarServicio(String nombre, double precio, boolean obligatorio) {
+    public void agregarServicio(String nombre, double precio, boolean obligatorio) throws ReglaNegocioException {
+        if (precio < 0) {
+            throw new ReglaNegocioException("El precio del servicio no puede ser negativo");
+        }
+        for (ServicioAdicional s : adicionales) {
+            if (s.getNombre().equalsIgnoreCase(nombre)) {
+                throw new ReglaNegocioException("El tour ya tiene el servicio " + nombre);
+            }
+        }
         adicionales.add(new ServicioAdicional(nombre, precio, obligatorio));
     }
 

@@ -2,6 +2,7 @@ package modelo;
 
 import enums.NivelDificultad;
 import enums.TipoPasajero;
+import excepciones.ReglaNegocioException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
@@ -46,7 +47,7 @@ public class TourAventuraTest {
     }
 
     @Test
-    void serviciosObligatoriosAventura() {
+    void serviciosObligatoriosAventura() throws ReglaNegocioException {
         aventura.agregarServicio("Seguro de viaje", 80.0, true);
         aventura.agregarServicio("Alquiler de crampones", 35.0, false);
         aventura.agregarServicio("Traslado al glaciar", 50.0, true);
@@ -59,7 +60,7 @@ public class TourAventuraTest {
     }
 
     @Test
-    void seguroDeViajeSiempreObligatorioEnAventura() {
+    void seguroDeViajeSiempreObligatorioEnAventura() throws ReglaNegocioException {
         aventura.agregarServicio("Seguro de viaje", 80.0, false);
         aventura.agregarServicio("Alquiler de crampones", 35.0, false);
 
@@ -70,7 +71,7 @@ public class TourAventuraTest {
     }
 
     @Test
-    void serviciosObligatoriosOtraCategoria() {
+    void serviciosObligatoriosOtraCategoria() throws ReglaNegocioException {
         Tour cultural = new TourCultural("CUL01", "Anchorage histórico", "Museos", 3, 4, 20);
         cultural.agregarServicio("Almuerzo típico", 40.0, false);
         cultural.agregarServicio("Entrada al museo", 25.0, true);
