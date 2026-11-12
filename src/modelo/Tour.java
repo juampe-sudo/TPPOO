@@ -1,7 +1,9 @@
 package modelo;
 
 import enums.CategoriaTour;
+import enums.TipoActividad;
 
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -67,5 +69,11 @@ public abstract class Tour {
 
     public List<ServicioAdicional> getAdicionales() {
         return Collections.unmodifiableList(adicionales);
+    }
+
+    public void agregarActividad(int dia, int orden, LocalTime horario, String descripcion, String lugar,
+                                 TipoActividad tipo, Proveedor proveedor) {
+        actividades.add(new Actividad(dia, orden, horario, descripcion, lugar, tipo, proveedor));
+        Collections.sort(actividades);
     }
 }
