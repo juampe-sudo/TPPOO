@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -26,8 +27,7 @@ public class GuiaTest {
     private final Cliente cliente = new Cliente("Laura", "Gómez", "28999888", "1155551234",
             "laura@mail.com", "Argentina");
     private final Vendedor vendedor = new Vendedor("Pablo", "Ruiz", "25111222", 101, "1144443333", 0.05);
-    private final Guia guia = new Guia("Tom", "Reed", "40111222", 201, "9075550000",
-            List.of("Inglés", "Español"), Set.of(CategoriaTour.CULTURAL, CategoriaTour.NATURALEZA), 150.0);
+    private Guia guia;
     private Tour tour;
 
     @BeforeEach
@@ -35,6 +35,14 @@ public class GuiaTest {
         tour = new TourCultural("CUL01", "Anchorage histórico", "Museos y centro histórico", 3, 4, 20);
         tour.agregarTarifa(Temporada.ALTA, hoy, hoy.plusDays(120), 1000.0);
         tour.agregarServicio("Kayak en la bahía", 100.0, false);
+
+        List<String> idiomas = new ArrayList<>();
+        idiomas.add("Inglés");
+        idiomas.add("Español");
+        Set<CategoriaTour> categorias = new HashSet<>();
+        categorias.add(CategoriaTour.CULTURAL);
+        categorias.add(CategoriaTour.NATURALEZA);
+        guia = new Guia("Tom", "Reed", "40111222", 201, "9075550000", idiomas, categorias, 150.0);
     }
 
     private Pasajero pasajero(String documento) {
@@ -97,8 +105,11 @@ public class GuiaTest {
         assertEquals(10.0, liquidacion.getMontoAdicionales(), 0.001);
         assertEquals(460.0, liquidacion.getTotal(), 0.001);
 
-        Guia otro = new Guia("Kate", "Moss", "40333444", 202, "9075552222", List.of("Inglés"),
-                Set.of(CategoriaTour.CULTURAL), 120.0);
+        List<String> idiomas = new ArrayList<>();
+        idiomas.add("Inglés");
+        Set<CategoriaTour> categorias = new HashSet<>();
+        categorias.add(CategoriaTour.CULTURAL);
+        Guia otro = new Guia("Kate", "Moss", "40333444", 202, "9075552222", idiomas, categorias, 120.0);
         assertThrows(ReglaNegocioException.class, () -> otro.liquidar(salida));
     }
 }

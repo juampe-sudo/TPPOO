@@ -20,7 +20,6 @@ public class Vendedor extends Empleado {
     }
 
     public double calcularComision(double monto) {
-        double factor = comision > 1 ? comision / 100.0 : comision;
-        return monto * factor;
+        return monto * comision;
     }
 }

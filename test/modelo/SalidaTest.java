@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
@@ -55,8 +56,11 @@ public class SalidaTest {
     }
 
     private Guia guia(int legajo, CategoriaTour categoria) {
-        return new Guia("Tom", "Reed", "40111" + legajo, legajo, "9075550000", List.of("Inglés"),
-                Set.of(categoria), 150.0);
+        List<String> idiomas = new ArrayList<>();
+        idiomas.add("Inglés");
+        Set<CategoriaTour> categorias = new HashSet<>();
+        categorias.add(categoria);
+        return new Guia("Tom", "Reed", "40111" + legajo, legajo, "9075550000", idiomas, categorias, 150.0);
     }
 
     @Test
