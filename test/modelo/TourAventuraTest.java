@@ -62,8 +62,11 @@ public class TourAventuraTest {
     void serviciosObligatoriosOtraCategoria() {
         Tour cultural = new TourCultural("CUL01", "Anchorage histórico", "Museos", 3, 4, 20);
         cultural.agregarServicio("Almuerzo típico", 40.0, false);
-        cultural.agregarServicio("Seguro de viaje", 80.0, true);
+        cultural.agregarServicio("Entrada al museo", 25.0, true);
 
-        assertTrue(cultural.getServiciosObligatorios().isEmpty());
+        List<ServicioAdicional> obligatorios = cultural.getServiciosObligatorios();
+
+        assertEquals(1, obligatorios.size());
+        assertEquals("Entrada al museo", obligatorios.get(0).getNombre());
     }
 }

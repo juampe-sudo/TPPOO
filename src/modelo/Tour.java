@@ -111,7 +111,13 @@ public abstract class Tour {
     }
 
     public List<ServicioAdicional> getServiciosObligatorios() {
-        return Collections.emptyList();
+        List<ServicioAdicional> obligatorios = new ArrayList<>();
+        for (ServicioAdicional s : adicionales) {
+            if (s.isObligatorio()) {
+                obligatorios.add(s);
+            }
+        }
+        return obligatorios;
     }
 
     public Salida programarSalida(String codigo, LocalDate inicio, int cupo) throws ReglaNegocioException {
