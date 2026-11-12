@@ -11,7 +11,7 @@ public class Cancelacion {
     private double importeDevuelto;
     private MedioPago medio;
 
-    public Cancelacion(LocalDate fecha, String motivo, double importeDevuelto, MedioPago medio) {
+    Cancelacion(LocalDate fecha, String motivo, double importeDevuelto, MedioPago medio) {
         this.fecha = fecha;
         this.motivo = motivo;
         this.importeDevuelto = importeDevuelto;

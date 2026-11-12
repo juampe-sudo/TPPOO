@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Reserva {
+public class git add src/modelo/Reserva.java src/modelo/Pago.java src/modelo/Cancelacion.java src/modelo/NotaAjuste.java src/estrategias/PromocionGrupo.java src/estrategias/PromocionReservaAnticipada.java test/estrategias/PromocionTest.java test/modelo/ReservaTest.javaReserva {
 
     private int numero;
     private LocalDate fecha;
@@ -145,6 +145,7 @@ public class Reserva {
         pagos.add(pago);
         if (estado == EstadoReserva.PENDIENTE && montoPagado() >= total * 0.30) {
             estado = EstadoReserva.CONFIRMADA;
+            salida.actualizarEstado();
         }
         return pago;
     }

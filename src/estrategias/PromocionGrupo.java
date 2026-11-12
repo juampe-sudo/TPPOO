@@ -16,8 +16,7 @@ public class PromocionGrupo implements Promocion {
     @Override
     public double calcularDescuento(Reserva r) throws ReglaNegocioException {
         if (r.cantidadPasajeros() >= minimoPasajeros) {
-            double factor = porcentaje > 1 ? porcentaje / 100.0 : porcentaje;
-            return r.subtotalTour() * factor;
+            return r.subtotalTour() * porcentaje;
         }
         return 0.0;
     }

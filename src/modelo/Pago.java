@@ -11,7 +11,7 @@ public class Pago {
     private MedioPago medio;
     private int cuotas;
 
-    public Pago(LocalDate fecha, double importe, MedioPago medio, int cuotas) {
+    Pago(LocalDate fecha, double importe, MedioPago medio, int cuotas) {
         this.fecha = fecha;
         this.importe = importe;
         this.medio = medio;

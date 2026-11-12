@@ -19,8 +19,7 @@ public class PromocionReservaAnticipada implements Promocion {
     public double calcularDescuento(Reserva r) throws ReglaNegocioException {
         long anticipacion = ChronoUnit.DAYS.between(r.getFecha(), r.getSalida().getFechaInicio());
         if (anticipacion > diasMinimos) {
-            double factor = porcentaje > 1 ? porcentaje / 100.0 : porcentaje;
-            return r.subtotalTour() * factor;
+            return r.subtotalTour() * porcentaje;
         }
         return 0.0;
     }

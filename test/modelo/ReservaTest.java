@@ -15,6 +15,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -72,7 +74,9 @@ public class ReservaTest {
 
     @Test
     void calculoTotalConMejorPromocion() throws ReglaNegocioException {
-        List<Promocion> promociones = List.of(new PromocionReservaAnticipada(60, 0.15), new PromocionGrupo(6, 0.10));
+        List<Promocion> promociones = new ArrayList<>();
+        promociones.add(new PromocionReservaAnticipada(60, 0.15));
+        promociones.add(new PromocionGrupo(6, 0.10));
 
         agregarAdultos(reserva, 2);
         assertEquals(2160.0, reserva.calcularTotal(promociones), 0.001);
@@ -86,7 +90,7 @@ public class ReservaTest {
     @Test
     void registroPagosYConfirmacionConSena() throws ReglaNegocioException {
         agregarAdultos(reserva, 2);
-        reserva.calcularTotal(List.of());
+        reserva.calcularTotal(Collections.emptyList());
 
         reserva.registrarPago(500.0, MedioPago.EFECTIVO, 1, hoy);
         assertEquals(EstadoReserva.PENDIENTE, reserva.getEstado());
@@ -108,7 +112,7 @@ public class ReservaTest {
     @Test
     void cancelarReservaConDevolucion() throws ReglaNegocioException {
         agregarAdultos(reserva, 2);
-        reserva.calcularTotal(List.of());
+        reserva.calcularTotal(Collections.emptyList());
         reserva.registrarPago(1000.0, MedioPago.TRANSFERENCIA, 1, hoy);
         reserva.registrarPago(500.0, MedioPago.TARJETA, 3, hoy);
 
@@ -131,7 +135,7 @@ public class ReservaTest {
     @Test
     void contratarServicioConNotaDeAjuste() throws ReglaNegocioException {
         agregarAdultos(reserva, 2);
-        reserva.calcularTotal(List.of());
+        reserva.calcularTotal(Collections.emptyList());
         ServicioAdicional crampones = tour.getAdicionales().get(1);
 
         reserva.contratarServicio("30000000", crampones);
@@ -151,7 +155,7 @@ public class ReservaTest {
     @Test
     void reemplazoPasajeroValidoEInvalido() throws ReglaNegocioException {
         agregarAdultos(reserva, 2);
-        reserva.calcularTotal(List.of());
+        reserva.calcularTotal(Collections.emptyList());
         Pasajero martin = pasajero("Martín", "40222333", LocalDate.of(1995, 8, 1));
         Pasajero menor = pasajero("Tomás", "50111222", hoy.minusYears(12));
 

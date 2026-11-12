@@ -65,13 +65,4 @@ public class PromocionTest {
 
         assertEquals(500.0, new PromocionGrupo(6, 0.10).calcularDescuento(reserva), 0.001);
     }
-
-    @Test
-    void porcentajeComoFraccionOEntero() throws ReglaNegocioException {
-        Reserva reserva = reservaConAdultos(61, 6);
-
-        assertEquals(900.0, new PromocionReservaAnticipada(60, 0.15).calcularDescuento(reserva), 0.001);
-        assertEquals(900.0, new PromocionReservaAnticipada(60, 15).calcularDescuento(reserva), 0.001);
-        assertEquals(600.0, new PromocionGrupo(6, 10).calcularDescuento(reserva), 0.001);
-    }
 }
