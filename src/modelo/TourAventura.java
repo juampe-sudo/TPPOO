@@ -4,6 +4,9 @@ import enums.CategoriaTour;
 import enums.NivelDificultad;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class TourAventura extends Tour {
 
@@ -33,5 +36,16 @@ public class TourAventura extends Tour {
     @Override
     public boolean esApto(Pasajero p, LocalDate fecha) {
         return p.edadAl(fecha) >= edadMinima;
+    }
+
+    @Override
+    public List<ServicioAdicional> getServiciosObligatorios() {
+        List<ServicioAdicional> obligatorios = new ArrayList<>();
+        for (ServicioAdicional s : getAdicionales()) {
+            if (s.isObligatorio()) {
+                obligatorios.add(s);
+            }
+        }
+        return Collections.unmodifiableList(obligatorios);
     }
 }

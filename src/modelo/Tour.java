@@ -109,4 +109,8 @@ public abstract class Tour {
     public boolean esApto(Pasajero p, LocalDate fecha) {
         return true;
     }
+
+    public List<ServicioAdicional> getServiciosObligatorios() {
+        return Collections.emptyList();
+    }
 }
