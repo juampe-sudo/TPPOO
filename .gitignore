@@ -13,3 +13,7 @@ data/*.dat
 .settings/
 .classpath
 .project
+
+# Listas de pasajeros y reportes que genera el programa
+data/listas/
+data/reportes/
