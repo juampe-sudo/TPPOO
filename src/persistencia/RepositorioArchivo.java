@@ -50,6 +50,7 @@ public class RepositorioArchivo<T> implements Repositorio<T> {
         return new ArrayList<>(datos.values());
     }
 
+    // cada .dat se lee por separado y trae sus propias copias, aca se reconectan con los objetos de cada repositorio
     public static void vincular(Repositorio<Tour> tours, Repositorio<Salida> salidas, Repositorio<Reserva> reservas,
                                 Repositorio<Cliente> clientes, Repositorio<Empleado> empleados,
                                 Repositorio<Vehiculo> vehiculos) {
