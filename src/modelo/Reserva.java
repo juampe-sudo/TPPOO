@@ -11,7 +11,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class git add src/modelo/Reserva.java src/modelo/Pago.java src/modelo/Cancelacion.java src/modelo/NotaAjuste.java src/estrategias/PromocionGrupo.java src/estrategias/PromocionReservaAnticipada.java test/estrategias/PromocionTest.java test/modelo/ReservaTest.javaReserva {
+public class Reserva {
 
     private int numero;
     private LocalDate fecha;
