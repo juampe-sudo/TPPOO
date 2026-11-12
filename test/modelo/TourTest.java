@@ -9,6 +9,7 @@ import java.time.LocalDate;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class TourTest {
@@ -51,5 +52,25 @@ public class TourTest {
     void rechazaUnaTarifaConVigenciaInvertida() {
         assertThrows(ReglaNegocioException.class, () -> tour.agregarTarifa(Temporada.BAJA,
                 LocalDate.of(2027, 12, 31), LocalDate.of(2027, 10, 1), 1000.0));
+    }
+
+    @Test
+    void devuelveLaTarifaVigenteParaLaFecha() throws ReglaNegocioException {
+        tour.agregarTarifa(Temporada.MEDIA, LocalDate.of(2027, 9, 1), LocalDate.of(2027, 11, 30), 1500.0);
+
+        Tarifa tarifa = tour.getTarifaVigente(LocalDate.of(2027, 10, 10));
+
+        assertSame(Temporada.MEDIA, tarifa.getTemporada());
+        assertEquals(1500.0, tarifa.getPrecioBase());
+    }
+
+    @Test
+    void devuelveLaTarifaEnElUltimoDiaDeVigencia() throws ReglaNegocioException {
+        assertSame(Temporada.ALTA, tour.getTarifaVigente(LocalDate.of(2027, 8, 31)).getTemporada());
+    }
+
+    @Test
+    void lanzaExcepcionSiNoHayTarifaVigente() {
+        assertThrows(ReglaNegocioException.class, () -> tour.getTarifaVigente(LocalDate.of(2027, 9, 1)));
     }
 }
