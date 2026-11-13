@@ -60,6 +60,17 @@ public class MenuConsola {
     }
 
     public void iniciar() {
+        try {
+            List<String> procesado = ctrlSalidas.controlarPlazos(LocalDate.now());
+            if (!procesado.isEmpty()) {
+                System.out.println("Control de plazos de hoy:");
+                for (String linea : procesado) {
+                    System.out.println("  " + linea);
+                }
+            }
+        } catch (ReglaNegocioException e) {
+            System.out.println("No se pudo hacer el control de plazos: " + e.getMessage());
+        }
         int opcion;
         do {
             System.out.println();
