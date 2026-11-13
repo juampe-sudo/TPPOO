@@ -8,7 +8,7 @@ Integrantes: Juan Pedro Sama, Joaquín Castellano y Juan Zeljkovich
 - El programa en Java en /src, organizado en paquetes: enums, excepciones, modelo, estrategias, persistencia, reportes, controladores, vista y app.
 - Un menú por consola con tres roles (vendedor, coordinador de operaciones y administrador) que cubre los 18 casos de uso del documento de diseño, incluidos Crear reserva y Cancelar reserva, que son los de los diagramas de secuencia.
 - Persistencia en archivos: los datos se serializan en data/*.dat y se mantienen entre ejecuciones. El personal y los vehículos se cargan la primera vez desde data/datos_iniciales.txt. Las listas de pasajeros y los reportes también se guardan como .txt.
-- 72 pruebas unitarias con JUnit 5 en /test y el plan de pruebas funcionales en docs/plan_de_pruebas.md (65 casos).
+- 72 pruebas unitarias con JUnit 5 en /test y el plan de pruebas funcionales en docs/plan_de_pruebas.md (66 casos).
 - El diagrama de clases final actualizado con los cambios que aparecieron al programar (docs/uml/clases_final.drawio y .png).
 
 Cómo compilarlo, ejecutarlo y correr las pruebas está en el README.
@@ -70,7 +70,7 @@ Las 72 pruebas unitarias están en /test, separadas por paquete igual que el có
 - persistencia: que lo que se guarda se vuelva a leer igual, que al recargar las referencias queden compartidas y que los datos iniciales no se carguen dos veces.
 - controladores y reportes: los casos de uso completos usando RepositorioEnMemoria.
 
-El plan de pruebas funcionales tiene 65 casos que se corrieron sobre el programa por consola. Con esas corridas encontramos errores que las pruebas unitarias no mostraban, por ejemplo que en el reporte de ocupación una salida finalizada aparecía con 0 lugares, y los corregimos.
+El plan de pruebas funcionales tiene 66 casos que se corrieron sobre el programa por consola. Con esas corridas encontramos errores que las pruebas unitarias no mostraban, por ejemplo que en el reporte de ocupación una salida finalizada aparecía con 0 lugares, y los corregimos.
 
 ## 5. Dificultades que encontramos
 
