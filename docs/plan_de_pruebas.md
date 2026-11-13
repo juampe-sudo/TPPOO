@@ -43,3 +43,50 @@ Las pruebas unitarias con JUnit van aparte, en /test.
 | P20 | Asignación correcta | S001, guía 201, vehículo KDF482 (8 lugares) | Se asignan los dos | "Guía asignado" y "Vehículo asignado" | Sí |
 | P21 | Vehículo con poca capacidad | S003 (cupo 10), guía 203, vehículo KDF482 | Solo ofrece vehículos de 10 lugares o más, y si igual se escribe esa patente da error | Ofrece JTR915 y HMB307. "Error: El vehículo KDF482 tiene capacidad para 8 y la salida tiene un cupo de 10" | Sí |
 | P22 | Patente en minúsculas | S002, guía 202, "kdf482". También S004 con guía 202 y JTR915 | La toma igual | "Vehículo asignado" en las dos | Sí |
+
+## 4. Registrar cliente (CU03) - Vendedor
+
+| ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
+|---|---|---|---|---|---|
+| P23 | Legajo que no es de un vendedor | Rol vendedor, legajo 999 | No deja entrar al menú | "No hay un vendedor con legajo 999" | Sí |
+| P24 | Correo inválido | Legajo 101. Cliente 28999888, Laura Fernandez, correo laura.fernandez@mail | Error | "Error: El correo laura.fernandez@mail no tiene un formato válido" | Sí |
+| P25 | Alta de cliente | Los mismos datos con laura.fernandez@gmail.com, Argentina | Se registra | "Cliente registrado" | Sí |
+| P26 | Documento ya registrado | 28999888 | Avisa y no pide los datos de nuevo | "Ese documento ya esta registrado: Laura Fernandez (28999888)" | Sí |
+| P27 | Cliente nuevo desde la reserva | Legajo 102, crear reserva con documento 41555666 (Kenji Tanaka, Japón) | Pide los datos, lo registra y sigue con la reserva (flujo 1a de CU04) | "El cliente no está registrado, cargalo primero" -> "Cliente registrado" -> muestra las salidas | Sí |
+
+## 5. Crear reserva, precio y adicionales (CU04, CU05, CU06) - Vendedor
+
+| ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
+|---|---|---|---|---|---|
+| P28 | Pasajeros de la reserva | S001. Laura Fernandez 15/03/1990 ADULTO y Pedro Gomez 02/07/1988 ADULTO, celíaco | Se agregan, el seguro ya viene incluido por ser aventura | "pasajero agregado" dos veces. En los adicionales figura "Seguro de viaje USD 80.00 (ya incluido, es obligatorio)" | Sí |
+| P29 | Edad mínima | Tomas Fernandez, nacido el 10/05/2015 (11 años, el mínimo es 14) | No se agrega | "No se agregó: El pasajero Tomas Fernandez no cumple la edad mínima del tour" | Sí |
+| P30 | Pasajero repetido | Pedro Gomez 30111222 de nuevo | No se agrega | "No se agregó: El pasajero con documento 30111222 ya está en la reserva" | Sí |
+| P31 | Adicional opcional | Traslado al aeropuerto para 28999888 | Se suma a ese pasajero | "Agregado" | Sí |
+| P32 | Adicional que el tour no tiene | "Cena" | Error | "Error: El tour no ofrece el servicio Cena" | Sí |
+| P33 | Total y seña | Confirmar la reserva | 2 x 1200 + 2 x 80 (seguro) + 40 (traslado) = 2600, seña 780. Ninguna promo: faltan 8 días y son 2 pasajeros | "Reserva 1 creada. Total USD 2600.00, seña a pagar (30%): USD 780.00" | Sí |
+| P34 | Jubilado y adicional por pasajero | S002: Kenji Tanaka ADULTO y Haruko Tanaka JUBILADO (1958, diabética), cena para los dos (la segunda escrita "cena típica") | 1000 + 900 (10 % menos por jubilado) + 2 x 50 = 2000, seña 600 | "Reserva 3 creada. Total USD 2000.00, seña a pagar (30%): USD 600.00" | Sí |
+| P35 | Lugares libres | Crear otra reserva despues de la 3 | S002 ofrece 6 lugares libres (8 - 2) | "S002 - Auroras boreales en Fairbanks el 12/11/2026 (6 lugares libres)" | Sí |
+
+## 6. Registrar pago (CU07) - Vendedor
+
+| ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
+|---|---|---|---|---|---|
+| P36 | Pago menor a la seña | Reserva 1, USD 500 en efectivo | La reserva sigue pendiente | "Pago registrado. La reserva esta pendiente y el saldo es USD 2100.00" | Sí |
+| P37 | Tarjeta en cuotas | Reserva 1, USD 400 con tarjeta en 3 cuotas | Recargo del 7 % (28). Con 900 pagados pasa la seña de 780 y se confirma | "Recargo por pagar en cuotas (7%): USD 28.00" y "La reserva esta confirmada y el saldo es USD 1700.00" | Sí |
+| P38 | Pago mayor al saldo | Reserva 1, USD 5000 | Error | "Error: El importe tiene que ser mayor a 0 y no superar el saldo de USD 1700.00" | Sí |
+| P39 | Tarjeta en una cuota | Reserva 2 (Laura sola en S001, total 1280), USD 1280 con tarjeta en 1 cuota | Sin recargo, saldo 0 | "Pago registrado. La reserva esta confirmada y el saldo es USD 0.00" | Sí |
+
+## 7. Modificar reserva (CU08) - Vendedor
+
+| ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
+|---|---|---|---|---|---|
+| P40 | Reemplazo de pasajero | Reserva 1: sale Pedro Gomez (30111222) y entra Ana Lopez, 33444555, 21/09/1992 | Se reemplaza sin cargo y queda una nota de ajuste | "Pasajero reemplazado sin cargo, quedó una nota de ajuste" | Sí |
+| P41 | Adicional después de pagar | Reserva 1: traslado para Ana Lopez | Sube el total y queda una nota con el importe | "Adicional contratado, el total quedó en USD 2640.00" | Sí |
+| P42 | Ver reserva | Reserva 1 | Muestra pasajeros con adicionales, pagos y notas | Laura y Ana con seguro y traslado, los 2 pagos (el de tarjeta "en 3 cuotas") y las notas "Reemplazo de Pedro Gomez por Ana Lopez" y "Adicional Traslado al aeropuerto para Ana Lopez (USD 40.00)" | Sí |
+
+## 8. Cancelar reserva (CU09, CU10) - Vendedor
+
+| ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
+|---|---|---|---|---|---|
+| P43 | Cancelación del cliente a 8 días | Reserva 1, motivo "Cambio de planes del cliente", la causa no es de la agencia | Se devuelve el 20 % de lo pagado (900), por el medio de la seña. El recargo de la tarjeta no se devuelve | "Reserva anulada. Hay que devolver USD 180.00 (Efectivo)" | Sí |
+| P44 | Cancelar una reserva anulada | Reserva 1 otra vez | Error | "Error: La reserva 1 no existe, está anulada o finalizada" | Sí |
