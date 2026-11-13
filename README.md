@@ -23,7 +23,7 @@ Los comandos se corren parados en la carpeta raíz del repositorio, porque el pr
 Lo probamos en Windows (cmd y PowerShell) y en una terminal bash. Si en Windows los acentos se ven raros en la consola, correr antes chcp 65001.
 Con IntelliJ: marcar src como Sources Root y test como Test Sources Root, agregar el jar de /lib como librería y ejecutar app.Main con la raíz del repo como working directory.
 
-Al iniciar pide elegir el rol (vendedor, coordinador de operaciones o administrador) y muestra el menú de ese rol. El vendedor tiene que ingresar su legajo. Las fechas se ingresan como dd/mm/aaaa y las horas como hh:mm.
+Al abrirse corre el control de plazos del día (cupo mínimo a 7 días y saldos a 10) y muestra lo que anuló, si anuló algo. Después pide elegir el rol (vendedor, coordinador de operaciones o administrador) y muestra el menú de ese rol. El vendedor tiene que ingresar su legajo. Las fechas se ingresan como dd/mm/aaaa y las horas como hh:mm.
 La primera vez que se ejecuta carga el personal y los vehículos desde data/datos_iniciales.txt. Para arrancar de cero alcanza con borrar los archivos .dat de la carpeta data.
 
 Pruebas unitarias
