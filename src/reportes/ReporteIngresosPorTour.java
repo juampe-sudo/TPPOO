@@ -33,10 +33,10 @@ public class ReporteIngresosPorTour implements Reporte {
             String codigo = tour.getCodigo();
             tours.put(codigo, tour);
             for (Pago p : r.getPagos()) {
-                cobrado.merge(codigo, p.getImporte() + p.getRecargo(), Double::sum);
+                cobrado.put(codigo, cobrado.getOrDefault(codigo, 0.0) + p.getImporte() + p.getRecargo());
             }
             if (r.getCancelacion() != null) {
-                devuelto.merge(codigo, r.getCancelacion().getImporteDevuelto(), Double::sum);
+                devuelto.put(codigo, devuelto.getOrDefault(codigo, 0.0) + r.getCancelacion().getImporteDevuelto());
             }
         }
         List<String> lineas = new ArrayList<>();
