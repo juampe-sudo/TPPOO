@@ -30,8 +30,8 @@ public class ReporteCancelaciones implements Reporte {
                 canceladas.add(r);
             }
         }
-        canceladas.sort(Comparator.comparing((Reserva r) -> r.getCancelacion().getFecha())
-                .thenComparing(Reserva::getNumero));
+        Comparator<Reserva> porFecha = Comparator.comparing(r -> r.getCancelacion().getFecha());
+        canceladas.sort(porFecha.thenComparing(Reserva::getNumero));
 
         DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy");
         List<String> lineas = new ArrayList<>();

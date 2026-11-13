@@ -38,7 +38,8 @@ public class ReporteVentasPorVendedor implements Reporte {
             }
         }
         List<Vendedor> ordenados = new ArrayList<>(vendedores.values());
-        ordenados.sort(Comparator.comparing((Vendedor v) -> totales.get(v.getLegajo())).reversed());
+        Comparator<Vendedor> porTotal = Comparator.comparing(v -> totales.get(v.getLegajo()));
+        ordenados.sort(porTotal.reversed());
 
         List<String> lineas = new ArrayList<>();
         for (Vendedor v : ordenados) {
