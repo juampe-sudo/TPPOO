@@ -15,6 +15,7 @@ import modelo.Actividad;
 import modelo.Cliente;
 import modelo.Cancelacion;
 import modelo.Guia;
+import modelo.Liquidacion;
 import modelo.NotaAjuste;
 import modelo.Pago;
 import modelo.Pasajero;
@@ -323,6 +324,8 @@ public class MenuConsola {
             System.out.println("2. Modificar un tour");
             System.out.println("3. Registrar proveedor");
             System.out.println("4. Ver catálogo");
+            System.out.println("5. Liquidar honorarios de un guia");
+            System.out.println("6. Reportes");
             System.out.println("0. Volver");
             opcion = leerEntero("Opción: ");
             try {
@@ -331,6 +334,8 @@ public class MenuConsola {
                     case 2 -> editarTour(ctrlCatalogo.buscarTour(leerTexto("Código del tour: ")).getCodigo());
                     case 3 -> registrarProveedor(leerTexto("EIN: "));
                     case 4 -> verCatalogo();
+                    case 5 -> liquidar();
+                    case 6 -> reportes();
                     case 0 -> {
                     }
                     default -> System.out.println("Opción inválida");
@@ -433,6 +438,32 @@ public class MenuConsola {
         String servicio = leerTexto("Servicio que presta: ");
         ctrlCatalogo.registrarProveedor(new Proveedor(nombre, ein, contacto, servicio));
         System.out.println("Proveedor registrado");
+    }
+
+    private void liquidar() throws ReglaNegocioException {
+        Liquidacion liq = ctrlSalidas.liquidarHonorarios(leerTexto("Código de la salida: "));
+        System.out.println("Liquidación de " + liq.getGuia().getNombreCompleto() + " por la salida " + liq.getSalida().getCodigo());
+        System.out.println("  " + liq.getDias() + " días x " + usd(liq.getGuia().getHonorarioPorDia()) + " = " + usd(liq.getMontoDias()));
+        System.out.println("  5% de adicionales vendidos = " + usd(liq.getMontoAdicionales()));
+        System.out.println("  Total a pagar: " + usd(liq.getTotal()));
+    }
+
+    private void reportes() throws ReglaNegocioException {
+        List<String> titulos = ctrlReportes.listarReportes();
+        for (int i = 0; i < titulos.size(); i++) {
+            System.out.println("  " + (i + 1) + ". " + titulos.get(i));
+        }
+        int cual = leerEntero("Reporte: ");
+        List<String> lineas = ctrlReportes.emitir(cual - 1);
+        System.out.println();
+        System.out.println(titulos.get(cual - 1).toUpperCase());
+        if (lineas.isEmpty()) {
+            System.out.println("Sin datos");
+        }
+        for (String l : lineas) {
+            System.out.println(l);
+        }
+        System.out.println("(guardado en la carpeta data/reportes)");
     }
 
     private void verCatalogo() {
