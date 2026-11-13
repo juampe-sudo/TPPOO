@@ -70,3 +70,34 @@ Las 72 pruebas unitarias están en /test, separadas por paquete igual que el có
 - controladores y reportes: los casos de uso completos usando RepositorioEnMemoria.
 
 El plan de pruebas funcionales tiene 65 casos que se corrieron sobre el programa por consola. Con esas corridas encontramos errores que las pruebas unitarias no mostraban, por ejemplo que en el reporte de ocupación una salida finalizada aparecía con 0 lugares, y los corregimos.
+
+## 5. Dificultades que encontramos
+
+- **Referencias después de leer los archivos.** Fue lo que más nos costó. Con la serialización cada archivo trae su propia copia de los objetos, entonces al volver a abrir el programa una reserva y su salida dejaban de ser "la misma" y los cambios en una no se veían en la otra. Lo resolvimos con RepositorioArchivo.vincular, que reconecta todo después de cargar (ver punto 2).
+- **Reglas que dependen de la fecha.** La seña, los plazos de 7 y 10 días y la escala de devolución dependen de cuántos días faltan para la salida. Para poder probarlas, los métodos del modelo reciben la fecha como parámetro (registrarPago, cancelar, controlarPlazos(hoy)) y el LocalDate.now() queda en los controladores.
+- **Excepciones chequeadas.** Cuando agregamos validaciones nuevas en Tour (día de la actividad, servicios repetidos) hubo que sumar throws ReglaNegocioException en todos los métodos que los llaman y en varias pruebas.
+- **Trabajar los tres en paralelo.** Al principio nos repartimos por capas y algunas partes se superpusieron: la lógica del catálogo la terminó Juan Pedro mientras Joaquín hacía los esqueletos de esas clases. Lo reacomodamos y Joaquín pasó a los reportes, el menú y la documentación.
+- **Errores que solo aparecieron usando el programa.** Por ejemplo que Tour.getServiciosObligatorios() devolvía una lista vacía y el seguro de viaje no se agregaba solo, que se podía cargar dos veces el mismo pasajero en una reserva o liquidar dos veces al guía. Los fuimos corrigiendo con la revisión del código y el plan de pruebas.
+- **El repositorio.** Perdimos el acceso a la cuenta del repositorio original y tuvimos que migrar el trabajo a este conservando el historial (está explicado en el README).
+
+## 6. Distribución de tareas
+
+Etapa 1:
+- Joaquín Castellano: enunciado adaptado a Alaska, actores, requerimientos, reglas de negocio y supuestos, diagrama y descripción de los casos de uso, armado del documento de diseño y el PDF.
+- Juan Zeljkovich: diagrama de clases inicial y los dos diagramas de secuencia (Crear reserva y Cancelar reserva).
+- Juan Pedro Sama: diagrama de clases final, justificación de los principios SOLID y los patrones GRASP y la nota de cambios. README inicial.
+
+Etapa 2:
+- Juan Zeljkovich: enumeraciones, clases de personas (Persona, Cliente, Pasajero, Empleado y sus subclases), Reserva, Pago, Cancelacion y NotaAjuste, las estrategias de promoción y de cancelación, la persistencia (Repositorio, RepositorioArchivo, CargadorDatosIniciales y datos_iniciales.txt) y la interfaz Reporte.
+- Juan Pedro Sama: excepciones, la lógica del catálogo (Tour, actividades, tarifas, servicios y programar salidas), Salida con sus estados y asignaciones, Guia y Liquidacion, ControladorCatalogo, ControladorReservas y ControladorSalidas, y gran parte de las pruebas del modelo y de los controladores.
+- Joaquín Castellano: esqueletos de las clases del catálogo, revisión del código y correcciones (servicios obligatorios, validaciones de actividades, servicios y clientes, pasajeros repetidos, liquidación repetida), los cuatro reportes y ControladorReportes, MenuConsola y Main, actualización del diagrama de clases, README, plan de pruebas y este informe.
+
+Cada uno trabajó en sus ramas y los cambios entraron a main por pull request.
+
+## 7. Reflexión del grupo
+
+Lo que más nos sirvió fue haber hecho bien el diseño en la etapa 1. Como ya teníamos separados los controladores, los repositorios y las estrategias, al programar casi no hubo que mover responsabilidades de lugar: los cuatro reportes fueron cuatro clases nuevas sin tocar el resto, y como los controladores dependen de Repositorio pudimos probarlos con un repositorio en memoria sin archivos de por medio.
+
+Lo que haríamos distinto: el menú quedó para el final y fue justamente donde aparecieron más errores, porque recién ahí se usaba todo junto. Si lo empezábamos antes (aunque fuera con pocas opciones) los hubiéramos visto antes. También nos hubiera convenido repartir el trabajo por caso de uso y no por capas, para no pisarnos, y acordar desde el principio qué métodos necesitaba el menú de cada controlador, que es de donde salieron la mayoría de los cambios al diagrama.
+
+En general nos quedamos conformes: el programa cumple las reglas de negocio de la propuesta, guarda los datos entre ejecuciones y el modelo y el código coinciden.
