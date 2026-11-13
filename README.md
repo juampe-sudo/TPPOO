@@ -32,6 +32,8 @@ Están en /test y usan JUnit 5. Son 72 pruebas sobre el modelo, las estrategias 
     javac -encoding UTF-8 -d out -cp lib/junit-platform-console-standalone-1.13.4.jar -sourcepath src test/controladores/*.java test/estrategias/*.java test/modelo/*.java test/persistencia/*.java test/reportes/*.java
     java -jar lib/junit-platform-console-standalone-1.13.4.jar execute -cp out --scan-classpath
 
+El plan de pruebas funcionales, con el dato de entrada, el resultado esperado y el obtenido de cada caso, está en docs/plan_de_pruebas.md.
+
 Datos de prueba
 En data/datos_iniciales.txt viene cargado el personal y los vehículos:
 
@@ -58,10 +60,13 @@ Estructura del proyecto
 - /docs: análisis de requisitos, supuestos y documentación del diseño
 - /docs/uml: diagramas UML (imagen .png y fuente .drawio)
 - /src: código fuente en Java
+- /test: pruebas unitarias con JUnit 5
+- /lib: jar de JUnit para compilar y correr las pruebas
+- /data: datos iniciales. Ahí mismo el programa guarda los .dat, las listas de pasajeros y los reportes
 
 Entregas
 - Etapa 1 (modelado y patrones): docs/Etapa1_Documento_de_Diseno.pdf, tag etapa-1
-- Etapa 2 (código y pruebas): pendiente, entrega 04/11/26
+- Etapa 2 (código y pruebas): código en /src y /test, docs/plan_de_pruebas.md, docs/informe_final.md y el diagrama de clases actualizado, tag etapa-2 (la entrega se pasó al 12/11/26)
 
 Historial del repositorio
 - El trabajo empezó en otro repositorio (github.com/jpsam4/TrabajoPOO). Perdimos el acceso a la cuenta administradora de ese repositorio y migramos el trabajo a este, conservando el historial de commits.
