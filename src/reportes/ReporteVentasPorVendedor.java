@@ -33,12 +33,13 @@ public class ReporteVentasPorVendedor implements Reporte {
             if (r.getEstado() != EstadoReserva.ANULADA) {
                 int legajo = r.getVendedor().getLegajo();
                 vendedores.put(legajo, r.getVendedor());
-                cantidades.merge(legajo, 1, Integer::sum);
-                totales.merge(legajo, r.getTotal(), Double::sum);
+                cantidades.put(legajo, cantidades.getOrDefault(legajo, 0) + 1);
+                totales.put(legajo, totales.getOrDefault(legajo, 0.0) + r.getTotal());
             }
         }
         List<Vendedor> ordenados = new ArrayList<>(vendedores.values());
-        ordenados.sort(Comparator.comparing((Vendedor v) -> totales.get(v.getLegajo())).reversed());
+        Comparator<Vendedor> porTotal = Comparator.comparing(v -> totales.get(v.getLegajo()));
+        ordenados.sort(porTotal.reversed());
 
         List<String> lineas = new ArrayList<>();
         for (Vendedor v : ordenados) {
