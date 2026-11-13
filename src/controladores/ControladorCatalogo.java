@@ -73,7 +73,11 @@ public class ControladorCatalogo {
         return tours.listar();
     }
 
-    private Tour buscarTour(String codTour) throws ReglaNegocioException {
+    public Proveedor buscarProveedor(String ein) {
+        return proveedores.buscar(ein);
+    }
+
+    public Tour buscarTour(String codTour) throws ReglaNegocioException {
         Tour tour = tours.buscar(codTour);
         if (tour == null) {
             throw new ReglaNegocioException("No existe el tour " + codTour);

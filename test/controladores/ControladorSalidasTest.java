@@ -187,7 +187,7 @@ public class ControladorSalidasTest {
         assertEquals(4, lista.size());
         List<String> lineas = Files.readAllLines(carpeta.resolve("lista_S002.txt"));
         assertEquals(5, lineas.size());
-        assertEquals("Pérez, Ana | 1000 | Juan Pérez 1155550000 | ", lineas.get(1));
+        assertEquals("Pérez, Ana | 1000 | Juan Pérez 1155550000 | sin restricciones", lineas.get(1));
         assertThrows(ReglaNegocioException.class, () -> controlador.iniciarSalida(futura.getCodigo()));
         controlador.iniciarSalida("S002");
         assertEquals(EstadoSalida.EN_CURSO, salida.getEstado());

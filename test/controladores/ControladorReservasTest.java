@@ -12,6 +12,7 @@ import excepciones.CupoInsuficienteException;
 import excepciones.ReglaNegocioException;
 import modelo.Cancelacion;
 import modelo.Cliente;
+import modelo.Empleado;
 import modelo.Pasajero;
 import modelo.Reserva;
 import modelo.Salida;
@@ -53,8 +54,10 @@ public class ControladorReservasTest {
         List<Promocion> promociones = new ArrayList<>();
         promociones.add(new PromocionReservaAnticipada(60, 0.15));
         promociones.add(new PromocionGrupo(6, 0.10));
+        RepositorioEnMemoria<Empleado> empleados = new RepositorioEnMemoria<>(e -> String.valueOf(e.getLegajo()));
+        empleados.guardar(vendedor);
         controlador = new ControladorReservas(new RepositorioEnMemoria<>(Cliente::getDocumento), salidas, reservas,
-                promociones);
+                empleados, promociones);
         controlador.registrarCliente(new Cliente("Laura", "Gómez", "28999888", "1155551234", "laura@mail.com",
                 "Argentina"));
     }
@@ -101,6 +104,7 @@ public class ControladorReservasTest {
         assertThrows(ReglaNegocioException.class, () -> controlador.agregarPasajero("Ana", "Pérez", "30001",
                 nacimiento, TipoPasajero.ADULTO, "", ""));
         assertThrows(ReglaNegocioException.class, () -> controlador.registrarPago(7, 100.0, MedioPago.EFECTIVO, 1));
+        assertThrows(ReglaNegocioException.class, () -> controlador.buscarVendedor(999));
     }
 
     @Test
