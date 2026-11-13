@@ -107,7 +107,8 @@ public class Salida implements Serializable {
     public int lugaresOcupados() {
         int ocupados = 0;
         for (Reserva r : reservas) {
-            if (reservaActiva(r)) {
+            // las finalizadas tambien cuentan, si no una salida cerrada queda vacia
+            if (r.getEstado() != EstadoReserva.ANULADA) {
                 ocupados += r.cantidadPasajeros();
             }
         }
