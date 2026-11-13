@@ -38,3 +38,35 @@ También hay algunas decisiones que tomamos al programar y que no estaban en los
 - el recargo del 7 % por tarjeta en cuotas se cobra aparte: no cuenta para la seña ni para el saldo y no se devuelve si se cancela.
 - los códigos de salida (S001, S002, ...) y los números de reserva los genera el sistema.
 - una reserva finalizada sigue ocupando su lugar en la salida, para que los reportes y la lista de salidas muestren cuántos viajaron.
+
+## 3. Dónde se ven los patrones en el código
+
+Los principios y patrones que justificamos en la etapa 1 quedaron así en el código:
+
+| Patrón | Dónde se ve |
+|---|---|
+| SRP | Cada grupo de casos de uso tiene su controlador (ControladorCatalogo, ControladorReservas, ControladorSalidas, ControladorReportes). Leer y escribir archivos está solo en RepositorioArchivo y cada reporte es una clase aparte. MenuConsola solo pide datos y muestra resultados |
+| OCP | Reserva.calcularTotal(List<Promocion>) y Reserva.cancelar(motivo, hoy, PoliticaCancelacion) no saben qué promoción o política reciben. ControladorReportes recibe una List<Reporte>: para sumar un reporte nuevo alcanza con una clase más y una línea en Main |
+| DIP | Los controladores y los reportes reciben Repositorio<T> por constructor. En el programa Main les pasa RepositorioArchivo y en las pruebas usamos RepositorioEnMemoria (está en test/persistencia), así que las pruebas no tocan archivos |
+| Experto | Salida calcula sus lugares, su estado y los adicionales vendidos; Reserva su total, lo pagado y el saldo; Pasajero su importe según edad y tipo; Tour su tarifa vigente; Guia su liquidación; Vendedor su comisión |
+| Creador | Reserva crea sus Pago, Cancelacion y NotaAjuste; Tour crea las Actividad, Tarifa, ServicioAdicional y Salida; Guia crea la Liquidacion |
+| Controlador | MenuConsola no tiene reglas de negocio, todo pasa por los controladores, que buscan en los repositorios y delegan en las entidades |
+| Polimorfismo | TourAventura sobrescribe esApto() y getServiciosObligatorios(), y Salida los usa sin saber de qué categoría es el tour. Promocion, PoliticaCancelacion y Reporte se usan siempre por la interfaz. Cada Empleado sobrescribe getRol() |
+
+Y los requisitos técnicos de la sección 7:
+- **Herencia y polimorfismo:** Persona (abstracta) con Cliente, Pasajero y Empleado (abstracta), que tiene a Vendedor, Guia, Coordinador y Administrador. Tour (abstracta) con TourAventura, TourCultural y TourNaturaleza.
+- **Encapsulamiento:** atributos privados, y protected en Persona y Empleado para que los usen las subclases. Las listas se devuelven con Collections.unmodifiableList para que nadie las modifique desde afuera.
+- **Colecciones:** List en casi todo el modelo, Set de categorías en Guia, LinkedHashMap en RepositorioArchivo y TreeMap en el reporte de ingresos para que salga ordenado por código. Ordenamiento natural con Actividad implements Comparable<Actividad> (por día y orden) y personalizado con Comparator en la lista de pasajeros (por apellido y nombre), en el reporte de ventas (por total) y en el de cancelaciones (por fecha y número).
+- **Excepciones:** ReglaNegocioException y CupoInsuficienteException para las reglas de negocio, con throw/throws. try, catch y finally en RepositorioArchivo, CargadorDatosIniciales y Main.
+- **Entrada y salida:** serialización de objetos en data/*.dat, lectura de datos_iniciales.txt y escritura de las listas de pasajeros y los reportes en .txt.
+- **Interfaz:** menú por consola.
+
+## 4. Pruebas
+
+Las 72 pruebas unitarias están en /test, separadas por paquete igual que el código:
+- modelo: precios por tipo de pasajero y edad, edad mínima y seguro en aventura, tarifas vigentes y superpuestas, cupos y estados de la salida, asignación de guía y vehículo, pagos, seña y recargo, que se aplique solo la mejor promoción, reemplazos, cancelaciones y liquidación del guía.
+- estrategias: las dos promociones y las dos políticas de cancelación con sus límites de días.
+- persistencia: que lo que se guarda se vuelva a leer igual, que al recargar las referencias queden compartidas y que los datos iniciales no se carguen dos veces.
+- controladores y reportes: los casos de uso completos usando RepositorioEnMemoria.
+
+El plan de pruebas funcionales tiene 65 casos que se corrieron sobre el programa por consola. Con esas corridas encontramos errores que las pruebas unitarias no mostraban, por ejemplo que en el reporte de ocupación una salida finalizada aparecía con 0 lugares, y los corregimos.
