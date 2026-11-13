@@ -92,8 +92,10 @@ public class MenuConsola {
             System.out.println("1. Registrar cliente");
             System.out.println("2. Crear reserva");
             System.out.println("3. Registrar pago");
-            System.out.println("4. Ver reserva");
-            System.out.println("5. ver salidas");
+            System.out.println("4. Modificar reserva");
+            System.out.println("5. Cancelar reserva");
+            System.out.println("6. Ver reserva");
+            System.out.println("7. ver salidas");
             System.out.println("0. Volver");
             op = leerEntero("Opción: ");
             try {
@@ -101,8 +103,10 @@ public class MenuConsola {
                     case 1 -> registrarCliente(leerTexto("Documento: "));
                     case 2 -> crearReserva();
                     case 3 -> registrarPago();
-                    case 4 -> verReserva();
-                    case 5 -> verSalidas();
+                    case 4 -> modificarReserva();
+                    case 5 -> cancelarReserva();
+                    case 6 -> verReserva();
+                    case 7 -> verSalidas();
                     case 0 -> {
                     }
                     default -> System.out.println("Opcion invalida");
@@ -200,6 +204,42 @@ public class MenuConsola {
         }
         System.out.println("Pago registrado. La reserva esta " + r.getEstado().getDescripcion().toLowerCase()
                 + " y el saldo es " + usd(r.saldo()));
+    }
+
+    private void modificarReserva() throws ReglaNegocioException {
+        int nro = leerEntero("Número de reserva: ");
+        ctrlReservas.buscarReserva(nro);
+        System.out.println("1. Reemplazar un pasajero");
+        System.out.println("2. Contratar un adicional");
+        int opc = leerEntero("Opción: ");
+        if (opc == 1) {
+            String docViejo = leerTexto("Documento del pasajero que sale: ");
+            System.out.println("Datos del pasajero nuevo");
+            String nombre = leerTexto("Nombre: ");
+            String apellido = leerTexto("Apellido: ");
+            String doc = leerTexto("Documento: ");
+            LocalDate nac = leerFecha("Fecha de nacimiento");
+            TipoPasajero tipo = elegir("Tipo: ", TipoPasajero.values());
+            String contacto = leerTexto("Contacto de emergencia: ");
+            String restricciones = leerTexto("Restricciones (enter si no tiene): ");
+            Pasajero nuevo = new Pasajero(nombre, apellido, doc, nac, tipo, contacto, restricciones);
+            ctrlReservas.reemplazarPasajero(nro, docViejo, nuevo);
+            System.out.println("Pasajero reemplazado sin cargo, quedó una nota de ajuste");
+        } else if (opc == 2) {
+            ctrlReservas.contratarServicio(nro, leerTexto("Documento del pasajero: "), leerTexto("Servicio: "));
+            Reserva r = ctrlReservas.buscarReserva(nro);
+            System.out.println("Adicional contratado, el total quedó en " + usd(r.getTotal()));
+        } else {
+            System.out.println("Opción inválida");
+        }
+    }
+
+    private void cancelarReserva() throws ReglaNegocioException {
+        int nro = leerEntero("Número de reserva: ");
+        String motivo = leerTexto("Motivo: ");
+        boolean agencia = leerSiNo("¿La causa es de la agencia?");
+        Cancelacion c = ctrlReservas.cancelarReserva(nro, motivo, agencia);
+        System.out.println("Reserva anulada. Hay que devolver " + usd(c.getImporteDevuelto()) + " (" + medio(c) + ")");
     }
 
     private void verReserva() throws ReglaNegocioException {
