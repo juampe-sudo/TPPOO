@@ -44,8 +44,9 @@ public class ReporteVentasPorVendedor implements Reporte {
         List<String> lineas = new ArrayList<>();
         for (Vendedor v : ordenados) {
             double total = totales.get(v.getLegajo());
+            int cant = cantidades.get(v.getLegajo());
             lineas.add(v.getNombreCompleto() + " (legajo " + v.getLegajo() + ") | "
-                    + cantidades.get(v.getLegajo()) + " reservas | total USD " + String.format("%.2f", total)
+                    + cant + (cant == 1 ? " reserva" : " reservas") + " | total USD " + String.format("%.2f", total)
                     + " | comisión USD " + String.format("%.2f", v.calcularComision(total)));
         }
         return lineas;

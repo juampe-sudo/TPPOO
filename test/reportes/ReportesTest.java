@@ -87,7 +87,7 @@ public class ReportesTest {
         assertTrue(lineas.get(0).contains("2 reservas"));
         assertTrue(lineas.get(0).contains("comisión USD " + String.format("%.2f", 150.0)));
         assertTrue(lineas.get(1).startsWith("Martín Sosa"));
-        assertTrue(lineas.get(1).contains("1 reservas"));
+        assertTrue(lineas.get(1).contains("1 reserva |"));
     }
 
     @Test
