@@ -121,9 +121,9 @@ public class ControladorSalidas {
 
     public void iniciarSalida(String codSalida) throws ReglaNegocioException {
         Salida salida = buscarSalida(codSalida);
-        if (!salida.getFechaInicio().equals(LocalDate.now())) {
+        if (salida.getFechaInicio().isAfter(LocalDate.now())) {
             throw new ReglaNegocioException("La salida " + codSalida + " empieza el "
-                    + salida.getFechaInicio().format(fmt) + ", no hoy");
+                    + salida.getFechaInicio().format(fmt) + ", todavía no se puede iniciar");
         }
         salida.iniciar();
         salidas.guardar(salida);
