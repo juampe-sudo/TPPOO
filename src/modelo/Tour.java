@@ -78,7 +78,15 @@ public abstract class Tour implements Serializable {
     }
 
     public void agregarActividad(int dia, int orden, LocalTime horario, String descripcion, String lugar,
-                                 TipoActividad tipo, Proveedor proveedor) {
+                                 TipoActividad tipo, Proveedor proveedor) throws ReglaNegocioException {
+        if (dia < 1 || dia > duracionDias) {
+            throw new ReglaNegocioException("El tour dura " + duracionDias + " días, no se puede cargar una actividad el día " + dia);
+        }
+        for (Actividad a : actividades) {
+            if (a.getDia() == dia && a.getOrden() == orden) {
+                throw new ReglaNegocioException("Ya hay una actividad el día " + dia + " con orden " + orden);
+            }
+        }
         actividades.add(new Actividad(dia, orden, horario, descripcion, lugar, tipo, proveedor));
         Collections.sort(actividades);
     }
@@ -96,7 +104,15 @@ public abstract class Tour implements Serializable {
         tarifas.add(new Tarifa(temporada, desde, hasta, precio));
     }
 
-    public void agregarServicio(String nombre, double precio, boolean obligatorio) {
+    public void agregarServicio(String nombre, double precio, boolean obligatorio) throws ReglaNegocioException {
+        if (precio < 0) {
+            throw new ReglaNegocioException("El precio del servicio no puede ser negativo");
+        }
+        for (ServicioAdicional s : adicionales) {
+            if (s.getNombre().equalsIgnoreCase(nombre)) {
+                throw new ReglaNegocioException("El tour ya tiene el servicio " + nombre);
+            }
+        }
         adicionales.add(new ServicioAdicional(nombre, precio, obligatorio));
     }
 
@@ -114,7 +130,13 @@ public abstract class Tour implements Serializable {
     }
 
     public List<ServicioAdicional> getServiciosObligatorios() {
-        return Collections.emptyList();
+        List<ServicioAdicional> obligatorios = new ArrayList<>();
+        for (ServicioAdicional s : adicionales) {
+            if (s.isObligatorio()) {
+                obligatorios.add(s);
+            }
+        }
+        return obligatorios;
     }
 
     public Salida programarSalida(String codigo, LocalDate inicio, int cupo) throws ReglaNegocioException {

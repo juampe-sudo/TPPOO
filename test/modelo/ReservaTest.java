@@ -70,6 +70,10 @@ public class ReservaTest {
         assertThrows(ReglaNegocioException.class, () -> reserva.agregarPasajero(menor));
         assertEquals(1, reserva.cantidadPasajeros());
         assertTrue(menor.getServicios().isEmpty());
+
+        Pasajero repetido = pasajero("Ana", "30111222", LocalDate.of(1990, 3, 5));
+        assertThrows(ReglaNegocioException.class, () -> reserva.agregarPasajero(repetido));
+        assertEquals(1, reserva.cantidadPasajeros());
     }
 
     @Test

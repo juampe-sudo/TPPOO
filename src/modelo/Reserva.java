@@ -87,6 +87,7 @@ public class Reserva implements Serializable {
     }
 
     public void agregarPasajero(Pasajero p) throws ReglaNegocioException {
+        verificarDocumentoLibre(p.getDocumento());
         if (!salida.admitePasajero(p)) {
             throw new ReglaNegocioException("El pasajero " + p.getNombreCompleto() + " no cumple la edad mínima del tour");
         }
@@ -139,7 +140,8 @@ public class Reserva implements Serializable {
             throws ReglaNegocioException {
         verificarActiva();
         if (importe <= 0 || importe > saldo()) {
-            throw new ReglaNegocioException("El importe tiene que ser mayor a 0 y no superar el saldo de " + saldo());
+            throw new ReglaNegocioException("El importe tiene que ser mayor a 0 y no superar el saldo de USD "
+                    + String.format("%.2f", saldo()));
         }
         if (cuotas < 1) {
             throw new ReglaNegocioException("El pago tiene que tener al menos una cuota");
@@ -186,6 +188,7 @@ public class Reserva implements Serializable {
             throw new ReglaNegocioException("Los pasajeros se pueden reemplazar hasta 3 días antes de la salida");
         }
         Pasajero anterior = buscarPasajero(docAnterior);
+        verificarDocumentoLibre(nuevo.getDocumento());
         if (!salida.admitePasajero(nuevo)) {
             throw new ReglaNegocioException("El pasajero " + nuevo.getNombreCompleto() + " no cumple la edad mínima del tour");
         }
@@ -206,6 +209,14 @@ public class Reserva implements Serializable {
     private void verificarActiva() throws ReglaNegocioException {
         if (estado == EstadoReserva.ANULADA || estado == EstadoReserva.FINALIZADA) {
             throw new ReglaNegocioException("La reserva " + numero + " está " + estado.getDescripcion().toLowerCase());
+        }
+    }
+
+    private void verificarDocumentoLibre(String doc) throws ReglaNegocioException {
+        for (Pasajero p : pasajeros) {
+            if (p.getDocumento().equals(doc)) {
+                throw new ReglaNegocioException("El pasajero con documento " + doc + " ya está en la reserva");
+            }
         }
     }
 

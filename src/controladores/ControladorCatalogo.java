@@ -25,6 +25,9 @@ public class ControladorCatalogo {
         if (tours.buscar(t.getCodigo()) != null) {
             throw new ReglaNegocioException("Ya existe un tour con el código " + t.getCodigo());
         }
+        if (t.getDuracionDias() < 1) {
+            throw new ReglaNegocioException("La duración del tour tiene que ser de al menos un día");
+        }
         if (t.getCupoMinimo() < 1 || t.getCupoMinimo() > t.getCupoMaximo()) {
             throw new ReglaNegocioException("El cupo mínimo tiene que ser mayor a 0 y no superar al máximo");
         }

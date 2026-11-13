@@ -154,7 +154,7 @@ public class ControladorSalidas {
                 reservas.guardar(r);
                 salidas.guardar(s);
                 procesado.add("Reserva " + r.getNumero() + " anulada por falta de pago. Se devuelven USD "
-                        + c.getImporteDevuelto());
+                        + String.format("%.2f", c.getImporteDevuelto()));
             }
         }
         return procesado;
@@ -165,7 +165,9 @@ public class ControladorSalidas {
         if (salida.getGuia() == null) {
             throw new ReglaNegocioException("La salida " + codSalida + " no tiene guía asignado");
         }
-        return salida.getGuia().liquidar(salida);
+        Liquidacion liquidacion = salida.getGuia().liquidar(salida);
+        empleados.guardar(salida.getGuia());
+        return liquidacion;
     }
 
     private List<Cancelacion> cancelar(Salida salida, String motivo, LocalDate hoy) throws ReglaNegocioException {

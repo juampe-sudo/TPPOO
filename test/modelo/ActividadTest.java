@@ -1,12 +1,14 @@
 package modelo;
 
 import enums.TipoActividad;
+import excepciones.ReglaNegocioException;
 import org.junit.jupiter.api.Test;
 
 import java.time.LocalTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class ActividadTest {
@@ -16,13 +18,13 @@ public class ActividadTest {
                 "Anchorage", TipoActividad.VISITA, null);
     }
 
-    private void agregar(Tour tour, int dia, int orden) {
+    private void agregar(Tour tour, int dia, int orden) throws ReglaNegocioException {
         tour.agregarActividad(dia, orden, LocalTime.of(9, 0), dia + "-" + orden,
                 "Anchorage", TipoActividad.VISITA, null);
     }
 
     @Test
-    void ordenaActividadesEnTour() {
+    void ordenaActividadesEnTour() throws ReglaNegocioException {
         Tour tour = new TourCultural("CUL01", "Anchorage histórico", "Museos", 3, 4, 20);
         agregar(tour, 3, 2);
         agregar(tour, 1, 2);
@@ -38,6 +40,17 @@ public class ActividadTest {
         assertEquals("2-1", itinerario.get(2).getDescripcion());
         assertEquals("3-1", itinerario.get(3).getDescripcion());
         assertEquals("3-2", itinerario.get(4).getDescripcion());
+    }
+
+    @Test
+    void rechazaDiaFueraDelTourYOrdenRepetido() throws ReglaNegocioException {
+        Tour tour = new TourCultural("CUL01", "Anchorage histórico", "Museos", 3, 4, 20);
+        agregar(tour, 1, 1);
+
+        assertThrows(ReglaNegocioException.class, () -> agregar(tour, 4, 1));
+        assertThrows(ReglaNegocioException.class, () -> agregar(tour, 0, 1));
+        assertThrows(ReglaNegocioException.class, () -> agregar(tour, 1, 1));
+        assertEquals(1, tour.getActividades().size());
     }
 
     @Test

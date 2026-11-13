@@ -94,6 +94,8 @@ public class ControladorReservasTest {
     void rechazaClienteRepetidoYDatosInexistentes() {
         assertThrows(ReglaNegocioException.class, () -> controlador.registrarCliente(
                 new Cliente("Laura", "Gómez", "28999888", "1155551234", "laura@mail.com", "Argentina")));
+        assertThrows(ReglaNegocioException.class, () -> controlador.registrarCliente(
+                new Cliente("Pedro", "Ruiz", "30555444", "1155550001", "pedro.mail.com", "Chile")));
         assertThrows(ReglaNegocioException.class, () -> controlador.iniciarReserva("11111111", "S001", vendedor));
         assertThrows(ReglaNegocioException.class, () -> controlador.iniciarReserva("28999888", "S999", vendedor));
         assertThrows(ReglaNegocioException.class, () -> controlador.agregarPasajero("Ana", "Pérez", "30001",

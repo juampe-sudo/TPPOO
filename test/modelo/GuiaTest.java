@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -104,6 +105,8 @@ public class GuiaTest {
         assertEquals(450.0, liquidacion.getMontoDias(), 0.001);
         assertEquals(10.0, liquidacion.getMontoAdicionales(), 0.001);
         assertEquals(460.0, liquidacion.getTotal(), 0.001);
+        assertSame(liquidacion, guia.liquidar(salida));
+        assertEquals(1, guia.getLiquidaciones().size());
 
         List<String> idiomas = new ArrayList<>();
         idiomas.add("Inglés");

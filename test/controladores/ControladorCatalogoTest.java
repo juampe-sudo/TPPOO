@@ -39,6 +39,8 @@ public class ControladorCatalogoTest {
                 new TourCultural("CUL01", "Otro", "Otro tour", 1, 2, 10)));
         assertThrows(ReglaNegocioException.class, () -> catalogo.registrarTour(
                 new TourCultural("CUL02", "Cupos al revés", "Mínimo mayor al máximo", 1, 12, 10)));
+        assertThrows(ReglaNegocioException.class, () -> catalogo.registrarTour(
+                new TourCultural("CUL03", "Sin días", "Duración en cero", 0, 2, 10)));
 
         catalogo.registrarTour(new TourAventura("AVE01", "Glaciar Matanuska", "Caminata sobre hielo", 2, 4, 12,
                 NivelDificultad.ALTO, 16));

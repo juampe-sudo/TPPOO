@@ -18,6 +18,7 @@ public class Guia extends Empleado {
     private Set<CategoriaTour> categorias;
     private double honorarioPorDia;
     private List<Salida> salidas;
+    private List<Liquidacion> liquidaciones;
 
     public Guia(String nombre, String apellido, String documento, int legajo, String telefono,
                 List<String> idiomas, Set<CategoriaTour> categorias, double honorarioPorDia) {
@@ -26,6 +27,7 @@ public class Guia extends Empleado {
         this.categorias = new HashSet<>(categorias);
         this.honorarioPorDia = honorarioPorDia;
         this.salidas = new ArrayList<>();
+        this.liquidaciones = new ArrayList<>();
     }
 
     public List<String> getIdiomas() {
@@ -42,6 +44,10 @@ public class Guia extends Empleado {
 
     public List<Salida> getSalidas() {
         return Collections.unmodifiableList(salidas);
+    }
+
+    public List<Liquidacion> getLiquidaciones() {
+        return Collections.unmodifiableList(liquidaciones);
     }
 
     @Override
@@ -72,10 +78,17 @@ public class Guia extends Empleado {
         if (s.getGuia() != this) {
             throw new ReglaNegocioException("La salida " + s.getCodigo() + " no la guió " + getNombreCompleto());
         }
+        for (Liquidacion l : liquidaciones) {
+            if (l.getSalida().getCodigo().equals(s.getCodigo())) {
+                return l;
+            }
+        }
         int dias = s.diasDeDuracion();
         double montoDias = dias * honorarioPorDia;
         double montoAdicionales = s.totalAdicionalesVendidos() * 0.05;
-        return new Liquidacion(this, s, dias, montoDias, montoAdicionales);
+        Liquidacion liquidacion = new Liquidacion(this, s, dias, montoDias, montoAdicionales);
+        liquidaciones.add(liquidacion);
+        return liquidacion;
     }
 
     public void revincular(List<Salida> salidas) {
