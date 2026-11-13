@@ -7,13 +7,16 @@ import controladores.ControladorSalidas;
 import enums.CategoriaTour;
 import enums.NivelDificultad;
 import enums.Temporada;
+import enums.TipoPasajero;
 import enums.TipoActividad;
 import excepciones.ReglaNegocioException;
 import modelo.Actividad;
+import modelo.Cliente;
 import modelo.Cancelacion;
 import modelo.Guia;
 import modelo.Pasajero;
 import modelo.Proveedor;
+import modelo.Reserva;
 import modelo.Salida;
 import modelo.ServicioAdicional;
 import modelo.Tarifa;
@@ -22,6 +25,7 @@ import modelo.TourAventura;
 import modelo.TourCultural;
 import modelo.TourNaturaleza;
 import modelo.Vehiculo;
+import modelo.Vendedor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -39,6 +43,7 @@ public class MenuConsola {
     private ControladorSalidas ctrlSalidas;
     private ControladorReportes ctrlReportes;
     private Scanner scanner;
+    private Vendedor vendedor;
 
     public MenuConsola(ControladorCatalogo ctrlCatalogo, ControladorReservas ctrlReservas,
                        ControladorSalidas ctrlSalidas, ControladorReportes ctrlReportes, Scanner scanner) {
@@ -60,12 +65,116 @@ public class MenuConsola {
             System.out.println("0. Salir");
             opcion = leerEntero("Elegí tu rol: ");
             switch (opcion) {
+                case 1 -> menuVendedor();
                 case 2 -> menuCoordinador();
                 case 3 -> menuAdministrador();
                 case 0 -> System.out.println("Hasta luego");
                 default -> System.out.println("Opción inválida");
             }
         } while (opcion != 0);
+    }
+
+    private void menuVendedor() {
+        try {
+            vendedor = ctrlReservas.buscarVendedor(leerEntero("Tu legajo: "));
+        } catch (ReglaNegocioException e) {
+            System.out.println(e.getMessage());
+            return;
+        }
+        System.out.println("Hola " + vendedor.getNombre() + "!");
+        int op;
+        do {
+            System.out.println();
+            System.out.println("--- Vendedor ---");
+            System.out.println("1. Registrar cliente");
+            System.out.println("2. Crear reserva");
+            System.out.println("3. ver salidas");
+            System.out.println("0. Volver");
+            op = leerEntero("Opción: ");
+            try {
+                switch (op) {
+                    case 1 -> registrarCliente(leerTexto("Documento: "));
+                    case 2 -> crearReserva();
+                    case 3 -> verSalidas();
+                    case 0 -> {
+                    }
+                    default -> System.out.println("Opcion invalida");
+                }
+            } catch (ReglaNegocioException e) {
+                System.out.println("Error: " + e.getMessage());
+            }
+        } while (op != 0);
+    }
+
+    private void registrarCliente(String doc) throws ReglaNegocioException {
+        Cliente existe = ctrlReservas.buscarCliente(doc);
+        if (existe != null) {
+            System.out.println("Ese documento ya esta registrado: " + existe);
+            return;
+        }
+        String nombre = leerTexto("Nombre: ");
+        String apellido = leerTexto("Apellido: ");
+        String tel = leerTexto("Teléfono: ");
+        String mail = leerTexto("Correo: ");
+        String pais = leerTexto("País de residencia: ");
+        ctrlReservas.registrarCliente(new Cliente(nombre, apellido, doc, tel, mail, pais));
+        System.out.println("Cliente registrado");
+    }
+
+    private void crearReserva() throws ReglaNegocioException {
+        String doc = leerTexto("Documento del cliente: ");
+        if (ctrlReservas.buscarCliente(doc) == null) {
+            System.out.println("El cliente no está registrado, cargalo primero");
+            registrarCliente(doc);
+        }
+        System.out.println("Salidas que admiten reservas:");
+        for (Salida s : ctrlSalidas.listarSalidas()) {
+            if (s.admiteReservas()) {
+                System.out.println("  " + s.getCodigo() + " - " + s.getTour().getNombre() + " el " + s.getFechaInicio().format(FECHA)
+                        + " (" + s.lugaresDisponibles() + " lugares libres)");
+            }
+        }
+        Reserva res = ctrlReservas.iniciarReserva(doc, leerTexto("Código de la salida: "), vendedor);
+
+        do {
+            try {
+                String nom = leerTexto("Nombre del pasajero: ");
+                String ape = leerTexto("Apellido: ");
+                String dni = leerTexto("Documento: ");
+                LocalDate nac = leerFecha("Fecha de nacimiento");
+                TipoPasajero tipo = elegir("Tipo: ", TipoPasajero.values());
+                String contacto = leerTexto("Contacto de emergencia: ");
+                String restr = leerTexto("Restricciones alimentarias o de salud (enter si no tiene): ");
+                ctrlReservas.agregarPasajero(nom, ape, dni, nac, tipo, contacto, restr);
+                System.out.println("pasajero agregado");
+            } catch (ReglaNegocioException e) {
+                System.out.println("No se agregó: " + e.getMessage());
+            }
+        } while (leerSiNo("¿Otro pasajero?"));
+
+        List<ServicioAdicional> adicionales = res.getSalida().getTour().getAdicionales();
+        if (!adicionales.isEmpty()) {
+            System.out.println("Adicionales del tour:");
+            for (ServicioAdicional sa : adicionales) {
+                System.out.println("  " + sa.getNombre() + " " + usd(sa.getPrecio()) + (sa.isObligatorio() ? " (ya incluido, es obligatorio)" : ""));
+            }
+            while (leerSiNo("¿Contratar un adicional?")) {
+                try {
+                    ctrlReservas.contratarServicio(leerTexto("Documento del pasajero: "), leerTexto("Servicio: "));
+                    System.out.println("Agregado");
+                } catch (ReglaNegocioException e) {
+                    System.out.println("Error: " + e.getMessage());
+                }
+            }
+        }
+
+        if (!leerSiNo("¿Confirmar la reserva?")) {
+            System.out.println("Reserva descartada");
+            return;
+        }
+        Reserva confirmada = ctrlReservas.confirmarReserva();
+        System.out.println("Reserva " + confirmada.getNumero() + " creada. Total " + usd(confirmada.getTotal())
+                + ", seña a pagar (30%): " + usd(confirmada.getTotal() * 0.30));
     }
 
     private void menuCoordinador() {
