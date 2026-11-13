@@ -9,12 +9,12 @@ import enums.EstadoReserva;
 import enums.MedioPago;
 import enums.NivelDificultad;
 import enums.Temporada;
-import enums.TipoPasajero;
 import enums.TipoActividad;
+import enums.TipoPasajero;
 import excepciones.ReglaNegocioException;
 import modelo.Actividad;
-import modelo.Cliente;
 import modelo.Cancelacion;
+import modelo.Cliente;
 import modelo.Guia;
 import modelo.Liquidacion;
 import modelo.NotaAjuste;
@@ -34,29 +34,29 @@ import modelo.Vendedor;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.util.List;
 import java.util.Scanner;
 
-public class MenuConsola {
-
-    private static final DateTimeFormatter FECHA = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+public class MenuConsola extends Menu {
 
     private ControladorCatalogo ctrlCatalogo;
     private ControladorReservas ctrlReservas;
     private ControladorSalidas ctrlSalidas;
     private ControladorReportes ctrlReportes;
-    private Scanner scanner;
     private Vendedor vendedor;
 
     public MenuConsola(ControladorCatalogo ctrlCatalogo, ControladorReservas ctrlReservas,
                        ControladorSalidas ctrlSalidas, ControladorReportes ctrlReportes, Scanner scanner) {
+        super(scanner);
         this.ctrlCatalogo = ctrlCatalogo;
         this.ctrlReservas = ctrlReservas;
         this.ctrlSalidas = ctrlSalidas;
         this.ctrlReportes = ctrlReportes;
-        this.scanner = scanner;
+    }
+
+    @Override
+    public String getTitulo() {
+        return "Rumbo Norte Alaska";
     }
 
     public void iniciar() {
@@ -71,10 +71,15 @@ public class MenuConsola {
         } catch (ReglaNegocioException e) {
             System.out.println("No se pudo hacer el control de plazos: " + e.getMessage());
         }
+        mostrar();
+    }
+
+    @Override
+    public void mostrar() {
         int opcion;
         do {
             System.out.println();
-            System.out.println("=== Rumbo Norte Alaska ===");
+            System.out.println("=== " + getTitulo() + " ===");
             System.out.println("1. Vendedor");
             System.out.println("2. Coordinador de operaciones");
             System.out.println("3. Administrador");
@@ -119,7 +124,7 @@ public class MenuConsola {
                     case 4 -> modificarReserva();
                     case 5 -> cancelarReserva();
                     case 6 -> verReserva();
-                    case 7 -> verSalidas();
+                    case 7 -> verSalidas(ctrlSalidas.listarSalidas());
                     case 0 -> {
                     }
                     default -> System.out.println("Opcion invalida");
@@ -320,7 +325,7 @@ public class MenuConsola {
                     }
                     case 6 -> cancelarSalida();
                     case 7 -> controlarPlazos();
-                    case 8 -> verSalidas();
+                    case 8 -> verSalidas(ctrlSalidas.listarSalidas());
                     case 0 -> {
                     }
                     default -> System.out.println("Opción inválida");
@@ -329,6 +334,77 @@ public class MenuConsola {
                 System.out.println("Error: " + e.getMessage());
             }
         } while (opcion != 0);
+    }
+
+    private void programarSalida() throws ReglaNegocioException {
+        for (Tour t : ctrlCatalogo.listarTours()) {
+            System.out.println("  " + t.getCodigo() + " - " + t.getNombre() + " (" + dias(t.getDuracionDias())
+                    + ", cupo " + t.getCupoMinimo() + " a " + t.getCupoMaximo() + ")");
+        }
+        String codTour = leerTexto("Código del tour: ");
+        LocalDate inicio = leerFecha("Fecha de inicio");
+        int cupo = leerEntero("Cupo máximo de la salida: ");
+        Salida salida = ctrlSalidas.programarSalida(codTour, inicio, cupo);
+        System.out.println("Salida " + salida.getCodigo() + " programada del " + salida.getFechaInicio().format(FECHA)
+                + " al " + salida.getFechaFin().format(FECHA));
+    }
+
+    private void asignarGuiaYVehiculo() throws ReglaNegocioException {
+        String codSalida = leerTexto("Código de la salida: ");
+        System.out.println("Guías habilitados y libres en esas fechas:");
+        for (Guia g : ctrlSalidas.guiasDisponibles(codSalida)) {
+            System.out.println("  " + g.getLegajo() + " - " + g.getNombreCompleto() + " (" + String.join(", ", g.getIdiomas())
+                    + ", " + usd(g.getHonorarioPorDia()) + " por día)");
+        }
+        ctrlSalidas.asignarGuia(codSalida, leerEntero("Legajo del guía: "));
+        System.out.println("Guía asignado");
+
+        List<Vehiculo> vehiculos = ctrlSalidas.vehiculosDisponibles(codSalida);
+        if (vehiculos.isEmpty()) {
+            System.out.println("No hay vehículos con capacidad para el cupo de la salida");
+            return;
+        }
+        for (Vehiculo v : vehiculos) {
+            System.out.println("  " + v.getPatente() + " - " + v.getTipo().getDescripcion() + " de " + v.getCapacidad()
+                    + " lugares");
+        }
+        ctrlSalidas.asignarVehiculo(codSalida, leerTexto("Patente: ").toUpperCase());
+        System.out.println("Vehículo asignado");
+    }
+
+    private void emitirLista() throws ReglaNegocioException {
+        String codSalida = leerTexto("Código de la salida: ");
+        List<Pasajero> lista = ctrlSalidas.emitirListaPasajeros(codSalida);
+        for (Pasajero p : lista) {
+            String restricciones = p.getRestricciones().isEmpty() ? "sin restricciones" : p.getRestricciones();
+            System.out.println("  " + p.getApellido() + ", " + p.getNombre() + " | doc " + p.getDocumento()
+                    + " | emergencia: " + p.getContactoEmergencia() + " | " + restricciones);
+        }
+        System.out.println("Lista emitida, se guardó en data/listas/lista_" + codSalida + ".txt");
+    }
+
+    private void cancelarSalida() throws ReglaNegocioException {
+        String codSalida = leerTexto("Código de la salida: ");
+        String motivo = leerTexto("Motivo: ");
+        List<Cancelacion> devoluciones = ctrlSalidas.cancelarSalida(codSalida, motivo);
+        if (devoluciones.size() == 1) {
+            System.out.println("Salida cancelada, se anuló 1 reserva");
+        } else {
+            System.out.println("Salida cancelada, se anularon " + devoluciones.size() + " reservas");
+        }
+        for (Cancelacion c : devoluciones) {
+            System.out.println("  Devolver " + usd(c.getImporteDevuelto()) + " (" + medio(c) + ")");
+        }
+    }
+
+    private void controlarPlazos() throws ReglaNegocioException {
+        List<String> procesado = ctrlSalidas.controlarPlazos(LocalDate.now());
+        if (procesado.isEmpty()) {
+            System.out.println("No hubo cambios");
+        }
+        for (String linea : procesado) {
+            System.out.println("  " + linea);
+        }
     }
 
     private void menuAdministrador() {
@@ -511,165 +587,5 @@ public class MenuConsola {
                         + (s.isObligatorio() ? " (obligatorio)" : ""));
             }
         }
-    }
-
-    private void programarSalida() throws ReglaNegocioException {
-        for (Tour t : ctrlCatalogo.listarTours()) {
-            System.out.println("  " + t.getCodigo() + " - " + t.getNombre() + " (" + dias(t.getDuracionDias())
-                    + ", cupo " + t.getCupoMinimo() + " a " + t.getCupoMaximo() + ")");
-        }
-        String codTour = leerTexto("Código del tour: ");
-        LocalDate inicio = leerFecha("Fecha de inicio");
-        int cupo = leerEntero("Cupo máximo de la salida: ");
-        Salida salida = ctrlSalidas.programarSalida(codTour, inicio, cupo);
-        System.out.println("Salida " + salida.getCodigo() + " programada del " + salida.getFechaInicio().format(FECHA)
-                + " al " + salida.getFechaFin().format(FECHA));
-    }
-
-    private void asignarGuiaYVehiculo() throws ReglaNegocioException {
-        String codSalida = leerTexto("Código de la salida: ");
-        System.out.println("Guías habilitados y libres en esas fechas:");
-        for (Guia g : ctrlSalidas.guiasDisponibles(codSalida)) {
-            System.out.println("  " + g.getLegajo() + " - " + g.getNombreCompleto() + " (" + String.join(", ", g.getIdiomas())
-                    + ", " + usd(g.getHonorarioPorDia()) + " por día)");
-        }
-        ctrlSalidas.asignarGuia(codSalida, leerEntero("Legajo del guía: "));
-        System.out.println("Guía asignado");
-
-        List<Vehiculo> vehiculos = ctrlSalidas.vehiculosDisponibles(codSalida);
-        if (vehiculos.isEmpty()) {
-            System.out.println("No hay vehículos con capacidad para el cupo de la salida");
-            return;
-        }
-        for (Vehiculo v : vehiculos) {
-            System.out.println("  " + v.getPatente() + " - " + v.getTipo().getDescripcion() + " de " + v.getCapacidad()
-                    + " lugares");
-        }
-        ctrlSalidas.asignarVehiculo(codSalida, leerTexto("Patente: ").toUpperCase());
-        System.out.println("Vehículo asignado");
-    }
-
-    private void emitirLista() throws ReglaNegocioException {
-        String codSalida = leerTexto("Código de la salida: ");
-        List<Pasajero> lista = ctrlSalidas.emitirListaPasajeros(codSalida);
-        for (Pasajero p : lista) {
-            String restricciones = p.getRestricciones().isEmpty() ? "sin restricciones" : p.getRestricciones();
-            System.out.println("  " + p.getApellido() + ", " + p.getNombre() + " | doc " + p.getDocumento()
-                    + " | emergencia: " + p.getContactoEmergencia() + " | " + restricciones);
-        }
-        System.out.println("Lista emitida, se guardó en data/listas/lista_" + codSalida + ".txt");
-    }
-
-    private void cancelarSalida() throws ReglaNegocioException {
-        String codSalida = leerTexto("Código de la salida: ");
-        String motivo = leerTexto("Motivo: ");
-        List<Cancelacion> devoluciones = ctrlSalidas.cancelarSalida(codSalida, motivo);
-        if (devoluciones.size() == 1) {
-            System.out.println("Salida cancelada, se anuló 1 reserva");
-        } else {
-            System.out.println("Salida cancelada, se anularon " + devoluciones.size() + " reservas");
-        }
-        for (Cancelacion c : devoluciones) {
-            System.out.println("  Devolver " + usd(c.getImporteDevuelto()) + " (" + medio(c) + ")");
-        }
-    }
-
-    private void controlarPlazos() throws ReglaNegocioException {
-        List<String> procesado = ctrlSalidas.controlarPlazos(LocalDate.now());
-        if (procesado.isEmpty()) {
-            System.out.println("No hubo cambios");
-        }
-        for (String linea : procesado) {
-            System.out.println("  " + linea);
-        }
-    }
-
-    private void verSalidas() {
-        List<Salida> salidas = ctrlSalidas.listarSalidas();
-        if (salidas.isEmpty()) {
-            System.out.println("No hay salidas programadas");
-            return;
-        }
-        for (Salida s : salidas) {
-            String guia = s.getGuia() == null ? "sin guía" : "guía " + s.getGuia().getNombreCompleto();
-            String vehiculo = s.getVehiculo() == null ? "sin vehículo" : "vehículo " + s.getVehiculo().getPatente();
-            System.out.println(s.getCodigo() + " | " + s.getTour().getNombre() + " | " + s.getFechaInicio().format(FECHA)
-                    + " al " + s.getFechaFin().format(FECHA) + " | " + s.getEstado().getDescripcion() + " | "
-                    + s.lugaresOcupados() + "/" + s.getCupoMaximo() + " lugares | " + guia + " | " + vehiculo);
-        }
-    }
-
-    private String leerTexto(String mensaje) {
-        System.out.print(mensaje);
-        return scanner.nextLine().trim();
-    }
-
-    private int leerEntero(String mensaje) {
-        while (true) {
-            try {
-                return Integer.parseInt(leerTexto(mensaje));
-            } catch (NumberFormatException e) {
-                System.out.println("Tiene que ser un número entero");
-            }
-        }
-    }
-
-    private double leerDouble(String mensaje) {
-        while (true) {
-            try {
-                return Double.parseDouble(leerTexto(mensaje).replace(',', '.'));
-            } catch (NumberFormatException e) {
-                System.out.println("Tiene que ser un número, por ejemplo 150.50");
-            }
-        }
-    }
-
-    private LocalDate leerFecha(String mensaje) {
-        while (true) {
-            try {
-                return LocalDate.parse(leerTexto(mensaje + " (dd/mm/aaaa): "), FECHA);
-            } catch (DateTimeParseException e) {
-                System.out.println("Fecha inválida");
-            }
-        }
-    }
-
-    private LocalTime leerHora(String mensaje) {
-        while (true) {
-            try {
-                return LocalTime.parse(leerTexto(mensaje + " (hh:mm): "));
-            } catch (DateTimeParseException e) {
-                System.out.println("Hora inválida");
-            }
-        }
-    }
-
-    private boolean leerSiNo(String mensaje) {
-        return leerTexto(mensaje + " (s/n): ").equalsIgnoreCase("s");
-    }
-
-    private <E extends Enum<E>> E elegir(String mensaje, E[] valores) {
-        for (int i = 0; i < valores.length; i++) {
-            System.out.println("  " + (i + 1) + ". " + valores[i].name());
-        }
-        while (true) {
-            int opcion = leerEntero(mensaje);
-            if (opcion >= 1 && opcion <= valores.length) {
-                return valores[opcion - 1];
-            }
-            System.out.println("Opción inválida");
-        }
-    }
-
-    private String medio(Cancelacion c) {
-        return c.getMedio() == null ? "no tenía pagos" : c.getMedio().getDescripcion();
-    }
-
-    private String dias(int n) {
-        return n == 1 ? "1 día" : n + " días";
-    }
-
-    private String usd(double importe) {
-        return "USD " + String.format("%.2f", importe);
     }
 }
