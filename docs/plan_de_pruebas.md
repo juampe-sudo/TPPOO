@@ -2,7 +2,7 @@
 
 Estos casos se corrieron sobre el programa por consola, compilado como dice el README, arrancando con la carpeta data sin archivos .dat (o sea solo con el personal y los vehículos de data/datos_iniciales.txt).
 
-La fecha de ejecución fue el **12/11/2026**. Hay reglas que dependen del día (los plazos de 7 y 10 días, la escala de devolución, que una salida solo se inicia el día que empieza) asi que si se repiten otro día hay que correr las fechas de las salidas en la misma medida.
+La fecha de ejecución fue el 12/11/2026. Hay reglas que dependen del día (los plazos de 7 y 10 días, la escala de devolución, que una salida solo se inicia el día que empieza) asi que si se repiten otro día hay que correr las fechas de las salidas en la misma medida.
 
 Los casos siguen el orden de una sesión completa: primero el administrador arma el catálogo, después el coordinador programa las salidas, los vendedores hacen las reservas y al final se opera la salida, se liquida al guía y se sacan los reportes. Por eso varios casos usan datos que se cargaron en uno anterior.
 Las pruebas unitarias con JUnit van aparte, en /test.
@@ -97,8 +97,8 @@ Las pruebas unitarias con JUnit van aparte, en /test.
 |---|---|---|---|---|---|
 | P45 | Lista sin pasajeros | Emitir la lista de S002 antes de cargar reservas | Error | "Error: La salida S002 no tiene pasajeros" | Sí |
 | P46 | Lista de pasajeros | S002 | Ordenada por apellido y nombre, con documento, contacto de emergencia y restricciones. Se guarda en data/listas | "Tanaka, Haruko \| doc 41555667 \| emergencia: Yuki Tanaka +81 90 8765 4321 \| Diabética" y después Kenji con "sin restricciones". "Lista emitida, se guardó en data/listas/lista_S002.txt" | Sí |
-| P47 | Iniciar otro día | S001, que empieza el 20/11 | Error | "Error: La salida S001 empieza el 20/11/2026, no hoy" | Sí |
-| P48 | Cancelación de la agencia | S004, motivo "Pronóstico de nubosidad total". Tenía la reserva 6 con USD 300 pagados por transferencia | Se anula la reserva y se devuelve el 100 % | "Salida cancelada, se anularon 1 reservas" y "Devolver USD 300.00 (Transferencia)" | Sí |
+| P47 | Iniciar antes de la fecha | S001, que empieza el 20/11 | Error, todavía no empezó | "Error: La salida S001 empieza el 20/11/2026, todavía no se puede iniciar" | Sí |
+| P48 | Cancelación de la agencia | S004, motivo "Pronóstico de nubosidad total". Tenía la reserva 6 con USD 300 pagados por transferencia | Se anula la reserva y se devuelve el 100 % | "Salida cancelada, se anuló 1 reserva" y "Devolver USD 300.00 (Transferencia)" | Sí |
 | P49 | Iniciar salida | S002 (es hoy, confirmada, con guía, vehículo y lista emitida) | Pasa a en curso | "La salida está en curso" | Sí |
 | P50 | Cancelar una salida en curso | S002 | Error | "Error: La salida S002 no se puede cancelar porque está en curso" | Sí |
 | P51 | Cerrar salida | S002 | Queda finalizada y sigue contando a sus 2 pasajeros | "Salida finalizada, ya se puede liquidar al guía". En Ver salidas: "S002 \| ... \| Finalizada \| 2/8 lugares" | Sí |
@@ -109,7 +109,7 @@ Antes de correrlo: S003 (17/11, faltan 5 días) tiene solo la reserva 5, pendien
 
 | ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
 |---|---|---|---|---|---|
-| P52 | Cupo mínimo a 7 días | Opción 7 | S003 se cancela y su reserva se anula (100 %, pero no tenía pagos) | "Salida S003 cancelada por no alcanzar el cupo mínimo (1 reservas anuladas)" | Sí |
+| P52 | Cupo mínimo a 7 días | Opción 7 | S003 se cancela y su reserva se anula (100 %, pero no tenía pagos) | "Salida S003 cancelada por no alcanzar el cupo mínimo (1 reserva anulada)" | Sí |
 | P53 | Saldo impago a 10 días | La misma ejecución | La reserva 4 se anula como si cancelara el cliente: 20 % de 400 = 80 | "Reserva 4 anulada por falta de pago. Se devuelven USD 80.00" | Sí |
 | P54 | Las reservas pagas no se tocan | La misma ejecución | Las reservas 2 y 3 (saldo 0) siguen. S001 queda programada porque faltan más de 7 días | No aparecen en el resultado. En Ver salidas S001 figura "Programada \| 1/8 lugares" | Sí |
 
@@ -118,7 +118,7 @@ Antes de correrlo: S003 (17/11, faltan 5 días) tiene solo la reserva 5, pendien
 | ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
 |---|---|---|---|---|---|
 | P55 | Salida sin terminar | S001 | Error | "Error: La salida S001 todavía no está finalizada" | Sí |
-| P56 | Liquidación | S002: guía 202 (USD 250 por día), 1 día, USD 100 de adicionales vendidos | 250 + 5 % de 100 = 255 | "1 días x USD 250.00 = USD 250.00", "5% de adicionales vendidos = USD 5.00", "Total a pagar: USD 255.00" | Sí |
+| P56 | Liquidación | S002: guía 202 (USD 250 por día), 1 día, USD 100 de adicionales vendidos | 250 + 5 % de 100 = 255 | "1 día x USD 250.00 = USD 250.00", "5% de adicionales vendidos = USD 5.00", "Total a pagar: USD 255.00" | Sí |
 | P57 | Liquidar dos veces | S002 de nuevo | Devuelve la misma liquidación, no se duplica | El mismo detalle con total USD 255.00 | Sí |
 
 ## 12. Reportes (CU18) - Administrador
@@ -126,7 +126,7 @@ Antes de correrlo: S003 (17/11, faltan 5 días) tiene solo la reserva 5, pendien
 | ID | Prueba | Entrada | Resultado esperado | Resultado obtenido | Ok |
 |---|---|---|---|---|---|
 | P58 | Ocupación por salida | Reporte 1 | Pasajeros de reservas no anuladas sobre el cupo de cada salida | S001 1/8 (12.5 %), S002 finalizada 2/8 (25.0 %), S003 cancelada 0/10 y S004 cancelada 0/8 | Sí |
-| P59 | Ventas por vendedor | Reporte 2 | Sin reservas anuladas, de mayor a menor total, con la comisión de cada uno | "Martín Sosa (legajo 102) \| 1 reservas \| total USD 2000.00 \| comisión USD 80.00" y después "Emily Carter (legajo 101) \| 1 reservas \| total USD 1280.00 \| comisión USD 64.00" | Sí |
+| P59 | Ventas por vendedor | Reporte 2 | Sin reservas anuladas, de mayor a menor total, con la comisión de cada uno | "Martín Sosa (legajo 102) \| 1 reserva \| total USD 2000.00 \| comisión USD 80.00" y después "Emily Carter (legajo 101) \| 1 reserva \| total USD 1280.00 \| comisión USD 64.00" | Sí |
 | P60 | Ingresos por tour | Reporte 3 | Lo cobrado (con recargos) menos lo devuelto | KEN01: cobrado 2608.00 (500 + 400 + 28 de recargo + 1280 + 400), devuelto 260.00 (180 + 80), neto 2348.00. NAT01: cobrado 2300.00, devuelto 300.00, neto 2000.00 | Sí |
 | P61 | Cancelaciones | Reporte 4 | Ordenadas por fecha y número, con motivo, importe devuelto y medio | Reserva 1 (180.00, efectivo), 4 (80.00, efectivo), 5 (0.00, sin pagos) y 6 (300.00, transferencia) | Sí |
 | P62 | Reporte que no existe | 7 | Error | "Error: No existe el reporte 7" | Sí |
@@ -138,10 +138,11 @@ Antes de correrlo: S003 (17/11, faltan 5 días) tiene solo la reserva 5, pendien
 |---|---|---|---|---|---|
 | P64 | Los datos quedan entre ejecuciones | Cerrar el programa, abrirlo de nuevo y ver el catálogo, las reservas 1 y 3 y las salidas | Todo sigue como quedó | El catálogo muestra KEN01 y NAT01 completos, la reserva 1 aparece anulada con sus pagos, notas y la devolución de 180, la 3 finalizada y las salidas con los mismos estados | Sí |
 | P65 | Letras donde va un número | "S002" cuando pide el número de reserva | Vuelve a pedir el dato sin cortar el programa | "Tiene que ser un número entero" y vuelve a preguntar | Sí |
+| P66 | Control de plazos al abrir el programa | Programar S005 de NAT01 para el 15/11 (faltan 3 días) con cupo 8 y sin reservas, salir y volver a abrir | Antes de pedir el rol se cancela S005 porque no llega al cupo mínimo | "Control de plazos de hoy:" y "Salida S005 cancelada por no alcanzar el cupo mínimo (0 reservas anuladas)". En Ver salidas S005 figura Cancelada | Sí |
 
 ## Resultado
 
-Se corrieron los 65 casos y pasaron todos.
+Se corrieron los 66 casos y pasaron todos.
 En las primeras corridas encontramos algunos errores que se corrigieron antes de esta versión:
 - en el reporte de ocupación y en "Ver salidas" una salida finalizada aparecía con 0 lugares ocupados, porque solo se contaban las reservas pendientes o confirmadas.
 - algunos importes salían sin los dos decimales (por ejemplo "USD 80.0" en el control de plazos y "1700.0" en el error de pago).
