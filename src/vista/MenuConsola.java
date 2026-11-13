@@ -10,6 +10,7 @@ import enums.Temporada;
 import enums.TipoActividad;
 import excepciones.ReglaNegocioException;
 import modelo.Actividad;
+import modelo.Cancelacion;
 import modelo.Guia;
 import modelo.Pasajero;
 import modelo.Proveedor;
@@ -75,7 +76,11 @@ public class MenuConsola {
             System.out.println("1. Programar salida");
             System.out.println("2. Asignar guía y vehículo");
             System.out.println("3. Emitir lista de pasajeros");
-            System.out.println("4. Ver salidas");
+            System.out.println("4. Iniciar salida");
+            System.out.println("5. Cerrar salida");
+            System.out.println("6. Cancelar salida");
+            System.out.println("7. Controlar plazos (cupo mínimo y saldos)");
+            System.out.println("8. Ver salidas");
             System.out.println("0. Volver");
             opcion = leerEntero("Opción: ");
             try {
@@ -83,7 +88,17 @@ public class MenuConsola {
                     case 1 -> programarSalida();
                     case 2 -> asignarGuiaYVehiculo();
                     case 3 -> emitirLista();
-                    case 4 -> verSalidas();
+                    case 4 -> {
+                        ctrlSalidas.iniciarSalida(leerTexto("Código de la salida: "));
+                        System.out.println("La salida está en curso");
+                    }
+                    case 5 -> {
+                        ctrlSalidas.cerrarSalida(leerTexto("Código de la salida: "));
+                        System.out.println("Salida finalizada, ya se puede liquidar al guía");
+                    }
+                    case 6 -> cancelarSalida();
+                    case 7 -> controlarPlazos();
+                    case 8 -> verSalidas();
                     case 0 -> {
                     }
                     default -> System.out.println("Opción inválida");
@@ -293,6 +308,26 @@ public class MenuConsola {
         System.out.println("Lista emitida, se guardó en data/listas/lista_" + codSalida + ".txt");
     }
 
+    private void cancelarSalida() throws ReglaNegocioException {
+        String codSalida = leerTexto("Código de la salida: ");
+        String motivo = leerTexto("Motivo: ");
+        List<Cancelacion> devoluciones = ctrlSalidas.cancelarSalida(codSalida, motivo);
+        System.out.println("Salida cancelada, se anularon " + devoluciones.size() + " reservas");
+        for (Cancelacion c : devoluciones) {
+            System.out.println("  Devolver " + usd(c.getImporteDevuelto()) + " (" + medio(c) + ")");
+        }
+    }
+
+    private void controlarPlazos() throws ReglaNegocioException {
+        List<String> procesado = ctrlSalidas.controlarPlazos(LocalDate.now());
+        if (procesado.isEmpty()) {
+            System.out.println("No hubo cambios");
+        }
+        for (String linea : procesado) {
+            System.out.println("  " + linea);
+        }
+    }
+
     private void verSalidas() {
         List<Salida> salidas = ctrlSalidas.listarSalidas();
         if (salidas.isEmpty()) {
@@ -368,6 +403,10 @@ public class MenuConsola {
             }
             System.out.println("Opción inválida");
         }
+    }
+
+    private String medio(Cancelacion c) {
+        return c.getMedio() == null ? "no tenía pagos" : c.getMedio().getDescripcion();
     }
 
     private String usd(double importe) {
