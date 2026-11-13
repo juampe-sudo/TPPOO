@@ -26,6 +26,34 @@ Con IntelliJ: marcar src como Sources Root y test como Test Sources Root, agrega
 Al iniciar pide elegir el rol (vendedor, coordinador de operaciones o administrador) y muestra el menú de ese rol. El vendedor tiene que ingresar su legajo. Las fechas se ingresan como dd/mm/aaaa y las horas como hh:mm.
 La primera vez que se ejecuta carga el personal y los vehículos desde data/datos_iniciales.txt. Para arrancar de cero alcanza con borrar los archivos .dat de la carpeta data.
 
+Pruebas unitarias
+Están en /test y usan JUnit 5. Son 72 pruebas sobre el modelo, las estrategias de promoción y cancelación, la persistencia, los controladores y los reportes. Para compilarlas y correrlas (también desde la raíz):
+
+    javac -encoding UTF-8 -d out -cp lib/junit-platform-console-standalone-1.13.4.jar -sourcepath src test/controladores/*.java test/estrategias/*.java test/modelo/*.java test/persistencia/*.java test/reportes/*.java
+    java -jar lib/junit-platform-console-standalone-1.13.4.jar execute -cp out --scan-classpath
+
+Datos de prueba
+En data/datos_iniciales.txt viene cargado el personal y los vehículos:
+
+| Rol | Legajo | Nombre | Datos |
+|---|---|---|---|
+| Vendedor | 101 | Emily Carter | comisión 5% |
+| Vendedor | 102 | Martín Sosa | comisión 4% |
+| Guía | 201 | Nathan Kowalski | aventura y naturaleza, USD 280 por día |
+| Guía | 202 | Aiyana Nanouk | cultural y naturaleza, USD 250 por día |
+| Guía | 203 | Sofía Lindqvist | las tres categorías, USD 320 por día |
+| Coordinador | 301 | Daniel Brooks | |
+| Administrador | 401 | Rachel Kim | |
+
+Vehículos: KDF482 (camioneta, 8 lugares), JTR915 (combi, 15 lugares) y HMB307 (micro, 40 lugares).
+
+Los tours, salidas, clientes y reservas se cargan desde el menú. Un recorrido corto para probarlo:
+1. Administrador > Dar de alta un tour, por ejemplo KEN01 "Kayak en Kenai Fjords", aventura, 2 días, cupo 4 a 12. Después agregarle una tarifa que cubra la fecha de la salida (ej. BAJA del 01/10/2026 al 30/04/2027, USD 1200) y algún servicio adicional
+2. Coordinador > Programar salida para ese tour con una fecha futura, y Asignar guía y vehículo (guía 201 y vehículo KDF482)
+3. Vendedor (legajo 101) > Registrar cliente, Crear reserva para la salida S001 con uno o mas pasajeros, y Registrar pago con la seña (30% del total)
+4. Coordinador > Emitir lista de pasajeros. La lista queda en data/listas
+5. Administrador > Reportes. Cada reporte se muestra en pantalla y también se guarda en data/reportes
+
 Estructura del proyecto
 - /docs: análisis de requisitos, supuestos y documentación del diseño
 - /docs/uml: diagramas UML (imagen .png y fuente .drawio)
