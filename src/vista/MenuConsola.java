@@ -443,7 +443,7 @@ public class MenuConsola {
     private void liquidar() throws ReglaNegocioException {
         Liquidacion liq = ctrlSalidas.liquidarHonorarios(leerTexto("Código de la salida: "));
         System.out.println("Liquidación de " + liq.getGuia().getNombreCompleto() + " por la salida " + liq.getSalida().getCodigo());
-        System.out.println("  " + liq.getDias() + " días x " + usd(liq.getGuia().getHonorarioPorDia()) + " = " + usd(liq.getMontoDias()));
+        System.out.println("  " + dias(liq.getDias()) + " x " + usd(liq.getGuia().getHonorarioPorDia()) + " = " + usd(liq.getMontoDias()));
         System.out.println("  5% de adicionales vendidos = " + usd(liq.getMontoAdicionales()));
         System.out.println("  Total a pagar: " + usd(liq.getTotal()));
     }
@@ -474,7 +474,7 @@ public class MenuConsola {
         for (Tour t : ctrlCatalogo.listarTours()) {
             System.out.println();
             System.out.println(t.getCodigo() + " - " + t.getNombre() + " (" + t.getCategoria().getDescripcion()
-                    + ", " + t.getDuracionDias() + " días, cupo " + t.getCupoMinimo() + " a " + t.getCupoMaximo() + ")");
+                    + ", " + dias(t.getDuracionDias()) + ", cupo " + t.getCupoMinimo() + " a " + t.getCupoMaximo() + ")");
             if (t instanceof TourAventura) {
                 TourAventura a = (TourAventura) t;
                 System.out.println("  Dificultad " + a.getNivelDificultad().getDescripcion().toLowerCase()
@@ -499,8 +499,8 @@ public class MenuConsola {
 
     private void programarSalida() throws ReglaNegocioException {
         for (Tour t : ctrlCatalogo.listarTours()) {
-            System.out.println("  " + t.getCodigo() + " - " + t.getNombre() + " (" + t.getDuracionDias()
-                    + " días, cupo " + t.getCupoMinimo() + " a " + t.getCupoMaximo() + ")");
+            System.out.println("  " + t.getCodigo() + " - " + t.getNombre() + " (" + dias(t.getDuracionDias())
+                    + ", cupo " + t.getCupoMinimo() + " a " + t.getCupoMaximo() + ")");
         }
         String codTour = leerTexto("Código del tour: ");
         LocalDate inicio = leerFecha("Fecha de inicio");
@@ -548,7 +548,11 @@ public class MenuConsola {
         String codSalida = leerTexto("Código de la salida: ");
         String motivo = leerTexto("Motivo: ");
         List<Cancelacion> devoluciones = ctrlSalidas.cancelarSalida(codSalida, motivo);
-        System.out.println("Salida cancelada, se anularon " + devoluciones.size() + " reservas");
+        if (devoluciones.size() == 1) {
+            System.out.println("Salida cancelada, se anuló 1 reserva");
+        } else {
+            System.out.println("Salida cancelada, se anularon " + devoluciones.size() + " reservas");
+        }
         for (Cancelacion c : devoluciones) {
             System.out.println("  Devolver " + usd(c.getImporteDevuelto()) + " (" + medio(c) + ")");
         }
@@ -643,6 +647,10 @@ public class MenuConsola {
 
     private String medio(Cancelacion c) {
         return c.getMedio() == null ? "no tenía pagos" : c.getMedio().getDescripcion();
+    }
+
+    private String dias(int n) {
+        return n == 1 ? "1 día" : n + " días";
     }
 
     private String usd(double importe) {

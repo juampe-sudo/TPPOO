@@ -145,7 +145,7 @@ public class ControladorSalidas {
             if (s.getEstado() == EstadoSalida.PROGRAMADA && s.diasHastaInicio(hoy) <= 7) {
                 List<Cancelacion> devoluciones = cancelar(s, "No alcanzó el cupo mínimo", hoy);
                 procesado.add("Salida " + s.getCodigo() + " cancelada por no alcanzar el cupo mínimo ("
-                        + devoluciones.size() + " reservas anuladas)");
+                        + devoluciones.size() + (devoluciones.size() == 1 ? " reserva anulada)" : " reservas anuladas)"));
             }
         }
         for (Reserva r : reservas.listar()) {
