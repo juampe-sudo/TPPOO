@@ -2,7 +2,7 @@
 
 Estos casos se corrieron sobre el programa por consola, compilado como dice el README, arrancando con la carpeta data sin archivos .dat (o sea solo con el personal y los vehículos de data/datos_iniciales.txt).
 
-La fecha de ejecución fue el **12/11/2026**. Hay reglas que dependen del día (los plazos de 7 y 10 días, la escala de devolución, que una salida solo se inicia el día que empieza) asi que si se repiten otro día hay que correr las fechas de las salidas en la misma medida.
+La fecha de ejecución fue el 12/11/2026. Hay reglas que dependen del día (los plazos de 7 y 10 días, la escala de devolución, que una salida solo se inicia el día que empieza) asi que si se repiten otro día hay que correr las fechas de las salidas en la misma medida.
 
 Los casos siguen el orden de una sesión completa: primero el administrador arma el catálogo, después el coordinador programa las salidas, los vendedores hacen las reservas y al final se opera la salida, se liquida al guía y se sacan los reportes. Por eso varios casos usan datos que se cargaron en uno anterior.
 Las pruebas unitarias con JUnit van aparte, en /test.

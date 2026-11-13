@@ -53,13 +53,13 @@ Los principios y patrones que justificamos en la etapa 1 quedaron así en el có
 | Controlador | MenuConsola no tiene reglas de negocio, todo pasa por los controladores, que buscan en los repositorios y delegan en las entidades |
 | Polimorfismo | TourAventura sobrescribe esApto() y getServiciosObligatorios(), y Salida los usa sin saber de qué categoría es el tour. Promocion, PoliticaCancelacion y Reporte se usan siempre por la interfaz. Cada Empleado sobrescribe getRol() |
 
-Y los requisitos técnicos de la sección 7:
-- **Herencia y polimorfismo:** Persona (abstracta) con Cliente, Pasajero y Empleado (abstracta), que tiene a Vendedor, Guia, Coordinador y Administrador. Tour (abstracta) con TourAventura, TourCultural y TourNaturaleza.
-- **Encapsulamiento:** atributos privados, y protected en Persona y Empleado para que los usen las subclases. Las listas se devuelven con Collections.unmodifiableList para que nadie las modifique desde afuera.
-- **Colecciones:** List en casi todo el modelo, Set de categorías en Guia, LinkedHashMap en RepositorioArchivo y TreeMap en el reporte de ingresos para que salga ordenado por código. Ordenamiento natural con Actividad implements Comparable<Actividad> (por día y orden) y personalizado con Comparator en la lista de pasajeros (por apellido y nombre), en el reporte de ventas (por total) y en el de cancelaciones (por fecha y número).
-- **Excepciones:** ReglaNegocioException y CupoInsuficienteException para las reglas de negocio, con throw/throws. try, catch y finally en RepositorioArchivo, CargadorDatosIniciales y Main.
-- **Entrada y salida:** serialización de objetos en data/*.dat, lectura de datos_iniciales.txt y escritura de las listas de pasajeros y los reportes en .txt.
-- **Interfaz:** menú por consola.
+Los requisitos técnicos de la sección 7 los cumplimos así:
+- Herencia y polimorfismo: Persona (abstracta) con Cliente, Pasajero y Empleado (abstracta), que tiene a Vendedor, Guia, Coordinador y Administrador. Tour (abstracta) con TourAventura, TourCultural y TourNaturaleza.
+- Encapsulamiento: atributos privados, y protected en Persona y Empleado para que los usen las subclases. Las listas se devuelven con Collections.unmodifiableList para que nadie las modifique desde afuera.
+- Colecciones: List en casi todo el modelo, un Set para las categorías del guía, LinkedHashMap en RepositorioArchivo y TreeMap en el reporte de ingresos para que salga ordenado por código. El orden natural está en Actividad, que implementa Comparable<Actividad> (por día y orden), y usamos Comparator en la lista de pasajeros (por apellido y nombre), en el reporte de ventas (por total) y en el de cancelaciones (por fecha y número).
+- Excepciones: las propias son ReglaNegocioException y CupoInsuficienteException, con throw/throws. Hay try, catch y finally en RepositorioArchivo, CargadorDatosIniciales y Main.
+- Entrada y salida: los objetos se serializan en data/*.dat, se lee datos_iniciales.txt y las listas de pasajeros y los reportes se escriben en .txt.
+- La interfaz es un menú por consola.
 
 ## 4. Pruebas
 
@@ -73,12 +73,17 @@ El plan de pruebas funcionales tiene 65 casos que se corrieron sobre el programa
 
 ## 5. Dificultades que encontramos
 
-- **Referencias después de leer los archivos.** Fue lo que más nos costó. Con la serialización cada archivo trae su propia copia de los objetos, entonces al volver a abrir el programa una reserva y su salida dejaban de ser "la misma" y los cambios en una no se veían en la otra. Lo resolvimos con RepositorioArchivo.vincular, que reconecta todo después de cargar (ver punto 2).
-- **Reglas que dependen de la fecha.** La seña, los plazos de 7 y 10 días y la escala de devolución dependen de cuántos días faltan para la salida. Para poder probarlas, los métodos del modelo reciben la fecha como parámetro (registrarPago, cancelar, controlarPlazos(hoy)) y el LocalDate.now() queda en los controladores.
-- **Excepciones chequeadas.** Cuando agregamos validaciones nuevas en Tour (día de la actividad, servicios repetidos) hubo que sumar throws ReglaNegocioException en todos los métodos que los llaman y en varias pruebas.
-- **Trabajar los tres en paralelo.** Al principio nos repartimos por capas y algunas partes se superpusieron: la lógica del catálogo la terminó Juan Pedro mientras Joaquín hacía los esqueletos de esas clases. Lo reacomodamos y Joaquín pasó a los reportes, el menú y la documentación.
-- **Errores que solo aparecieron usando el programa.** Por ejemplo que Tour.getServiciosObligatorios() devolvía una lista vacía y el seguro de viaje no se agregaba solo, que se podía cargar dos veces el mismo pasajero en una reserva o liquidar dos veces al guía. Los fuimos corrigiendo con la revisión del código y el plan de pruebas.
-- **El repositorio.** Perdimos el acceso a la cuenta del repositorio original y tuvimos que migrar el trabajo a este conservando el historial (está explicado en el README).
+Lo que más nos costó fueron las referencias después de leer los archivos. Con la serialización cada archivo trae su propia copia de los objetos, entonces al volver a abrir el programa una reserva y su salida dejaban de ser "la misma" y los cambios en una no se veían en la otra. Lo resolvimos con RepositorioArchivo.vincular, que reconecta todo después de cargar (ver punto 2).
+
+Varias reglas dependen de la fecha: la seña, los plazos de 7 y 10 días y la escala de devolución se calculan con los días que faltan para la salida. Para poder probarlas, los métodos del modelo reciben la fecha como parámetro (registrarPago, cancelar, controlarPlazos(hoy)) y el LocalDate.now() quedó en los controladores.
+
+Las excepciones chequeadas nos dieron bastante trabajo repetido. Cuando agregamos validaciones nuevas en Tour (el día de la actividad, los servicios repetidos) hubo que sumar throws ReglaNegocioException en todos los métodos que los llaman y en varias pruebas.
+
+Al principio nos repartimos por capas y algunas partes se superpusieron. La lógica del catálogo la terminó Juan Pedro mientras Joaquín hacía los esqueletos de esas clases, asi que lo reacomodamos y Joaquín pasó a los reportes, el menú y la documentación.
+
+Algunos errores recién aparecieron cuando usamos el programa entero. Tour.getServiciosObligatorios() devolvía una lista vacía y el seguro de viaje no se agregaba solo, se podía cargar dos veces el mismo pasajero en una reserva y el guía se podía liquidar dos veces por la misma salida. Los fuimos corrigiendo con la revisión del código y el plan de pruebas.
+
+Y aparte de lo técnico, perdimos el acceso a la cuenta del repositorio original y tuvimos que migrar el trabajo a este conservando el historial (está explicado en el README).
 
 ## 6. Distribución de tareas
 
@@ -98,6 +103,6 @@ Cada uno trabajó en sus ramas y los cambios entraron a main por pull request.
 
 Lo que más nos sirvió fue haber hecho bien el diseño en la etapa 1. Como ya teníamos separados los controladores, los repositorios y las estrategias, al programar casi no hubo que mover responsabilidades de lugar: los cuatro reportes fueron cuatro clases nuevas sin tocar el resto, y como los controladores dependen de Repositorio pudimos probarlos con un repositorio en memoria sin archivos de por medio.
 
-Lo que haríamos distinto: el menú quedó para el final y fue justamente donde aparecieron más errores, porque recién ahí se usaba todo junto. Si lo empezábamos antes (aunque fuera con pocas opciones) los hubiéramos visto antes. También nos hubiera convenido repartir el trabajo por caso de uso y no por capas, para no pisarnos, y acordar desde el principio qué métodos necesitaba el menú de cada controlador, que es de donde salieron la mayoría de los cambios al diagrama.
+Lo que haríamos distinto: el menú quedó para el final y fue justamente donde aparecieron más errores, porque recién ahí se usaba todo junto. Si lo empezábamos más temprano (aunque fuera con pocas opciones) los hubiéramos visto antes. También nos hubiera convenido repartir el trabajo por caso de uso y no por capas, para no pisarnos, y acordar desde el principio qué métodos necesitaba el menú de cada controlador, que es de donde salieron la mayoría de los cambios al diagrama.
 
-En general nos quedamos conformes: el programa cumple las reglas de negocio de la propuesta, guarda los datos entre ejecuciones y el modelo y el código coinciden.
+Con lo que quedó estamos conformes, aunque hay cosas que con más tiempo cambiaríamos. El control de plazos lo tiene que correr el coordinador a mano y lo lógico sería que se ejecute solo al abrir el programa. Y cuando hay muchas salidas cargadas la consola se vuelve incómoda, porque no se pueden filtrar.

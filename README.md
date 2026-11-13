@@ -2,7 +2,7 @@ Trabajo Práctico Obligatorio de Programación Orientada a Objetos.
 Propuesta elegida: Propuesta B - Agencia de Turismo, adaptada a una agencia de turismo receptivo en Alaska ("Rumbo Norte Alaska").
 
 Descripción
-Es un sistema por consola para la agencia. Permite armar el catálogo de tours (itinerario, tarifas por temporada y servicios adicionales), programar salidas, registrar clientes y reservas con sus pasajeros, cobrar la seña y el saldo, cancelar o modificar reservas aplicando la politica de cancelación, asignar guía y vehículo a cada salida, emitir la lista de pasajeros, liquidar los honorarios de los guías y sacar los cuatro reportes que pide el enunciado.
+Es un sistema por consola para la agencia. Con él se arma el catálogo de tours (itinerario, tarifas por temporada y servicios adicionales) y se programan las salidas. Los vendedores registran clientes y reservas con sus pasajeros, cobran la seña y el saldo, y pueden modificar o cancelar una reserva con la politica de cancelación. El coordinador asigna guía y vehículo, emite la lista de pasajeros y opera cada salida, y el administrador liquida los honorarios de los guías y saca los cuatro reportes del enunciado.
 Lo que se carga queda guardado en archivos dentro de la carpeta data, asi que la información se mantiene entre una ejecución y otra.
 
 Integrantes
@@ -20,7 +20,7 @@ Los comandos se corren parados en la carpeta raíz del repositorio, porque el pr
     javac -encoding UTF-8 -d out -sourcepath src src/app/Main.java
     java -cp out app.Main
 
-Funciona igual en Linux, Mac y Windows (cmd o PowerShell). Si en Windows los acentos se ven raros en la consola, correr antes chcp 65001.
+Lo probamos en Windows (cmd y PowerShell) y en una terminal bash. Si en Windows los acentos se ven raros en la consola, correr antes chcp 65001.
 Con IntelliJ: marcar src como Sources Root y test como Test Sources Root, agregar el jar de /lib como librería y ejecutar app.Main con la raíz del repo como working directory.
 
 Al iniciar pide elegir el rol (vendedor, coordinador de operaciones o administrador) y muestra el menú de ese rol. El vendedor tiene que ingresar su legajo. Las fechas se ingresan como dd/mm/aaaa y las horas como hh:mm.
