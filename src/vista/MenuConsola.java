@@ -5,6 +5,7 @@ import controladores.ControladorReportes;
 import controladores.ControladorReservas;
 import controladores.ControladorSalidas;
 import enums.CategoriaTour;
+import enums.MedioPago;
 import enums.NivelDificultad;
 import enums.Temporada;
 import enums.TipoPasajero;
@@ -14,6 +15,8 @@ import modelo.Actividad;
 import modelo.Cliente;
 import modelo.Cancelacion;
 import modelo.Guia;
+import modelo.NotaAjuste;
+import modelo.Pago;
 import modelo.Pasajero;
 import modelo.Proveedor;
 import modelo.Reserva;
@@ -88,14 +91,18 @@ public class MenuConsola {
             System.out.println("--- Vendedor ---");
             System.out.println("1. Registrar cliente");
             System.out.println("2. Crear reserva");
-            System.out.println("3. ver salidas");
+            System.out.println("3. Registrar pago");
+            System.out.println("4. Ver reserva");
+            System.out.println("5. ver salidas");
             System.out.println("0. Volver");
             op = leerEntero("Opción: ");
             try {
                 switch (op) {
                     case 1 -> registrarCliente(leerTexto("Documento: "));
                     case 2 -> crearReserva();
-                    case 3 -> verSalidas();
+                    case 3 -> registrarPago();
+                    case 4 -> verReserva();
+                    case 5 -> verSalidas();
                     case 0 -> {
                     }
                     default -> System.out.println("Opcion invalida");
@@ -175,6 +182,55 @@ public class MenuConsola {
         Reserva confirmada = ctrlReservas.confirmarReserva();
         System.out.println("Reserva " + confirmada.getNumero() + " creada. Total " + usd(confirmada.getTotal())
                 + ", seña a pagar (30%): " + usd(confirmada.getTotal() * 0.30));
+    }
+
+    private void registrarPago() throws ReglaNegocioException {
+        int nro = leerEntero("Número de reserva: ");
+        Reserva r = ctrlReservas.buscarReserva(nro);
+        System.out.println("Total " + usd(r.getTotal()) + " | pagado " + usd(r.montoPagado()) + " | saldo " + usd(r.saldo()));
+        double importe = leerDouble("Importe: ");
+        MedioPago medio = elegir("Medio de pago: ", MedioPago.values());
+        int cuotas = 1;
+        if (medio == MedioPago.TARJETA) {
+            cuotas = leerEntero("Cuotas: ");
+        }
+        Pago pago = ctrlReservas.registrarPago(nro, importe, medio, cuotas);
+        if (pago.getRecargo() > 0) {
+            System.out.println("Recargo por pagar en cuotas (7%): " + usd(pago.getRecargo()));
+        }
+        System.out.println("Pago registrado. La reserva esta " + r.getEstado().getDescripcion().toLowerCase()
+                + " y el saldo es " + usd(r.saldo()));
+    }
+
+    private void verReserva() throws ReglaNegocioException {
+        Reserva r = ctrlReservas.buscarReserva(leerEntero("Numero de reserva: "));
+        Salida sal = r.getSalida();
+        System.out.println("Reserva " + r.getNumero() + " del " + r.getFecha().format(FECHA) + " - " + r.getEstado().getDescripcion());
+        System.out.println("Cliente: " + r.getCliente() + " | Vendedor: " + r.getVendedor().getNombreCompleto());
+        System.out.println("Salida " + sal.getCodigo() + " - " + sal.getTour().getNombre() + " el " + sal.getFechaInicio().format(FECHA));
+        System.out.println("Pasajeros:");
+        for (Pasajero p : r.getPasajeros()) {
+            String extras = "";
+            for (ServicioAdicional sa : p.getServicios()) {
+                extras += ", " + sa.getNombre();
+            }
+            System.out.println("  " + p + " - " + p.getTipo().getDescripcion() + extras);
+        }
+        System.out.println("Total " + usd(r.getTotal()) + " | pagado " + usd(r.montoPagado()) + " | saldo " + usd(r.saldo()));
+        for (Pago pg : r.getPagos()) {
+            String cuotas = pg.getCuotas() > 1 ? " en " + pg.getCuotas() + " cuotas" : "";
+            System.out.println("  Pago del " + pg.getFecha().format(FECHA) + ": " + usd(pg.getImporte()) + " "
+                    + pg.getMedio().getDescripcion().toLowerCase() + cuotas);
+        }
+        for (NotaAjuste n : r.getNotas()) {
+            System.out.println("  Nota del " + n.getFecha().format(FECHA) + ": " + n.getDescripcion()
+                    + (n.getImporte() != 0 ? " (" + usd(n.getImporte()) + ")" : ""));
+        }
+        if (r.getCancelacion() != null) {
+            Cancelacion c = r.getCancelacion();
+            System.out.println("Cancelada el " + c.getFecha().format(FECHA) + " por " + c.getMotivo() + ". Se devolvió "
+                    + usd(c.getImporteDevuelto()) + " (" + medio(c) + ")");
+        }
     }
 
     private void menuCoordinador() {
