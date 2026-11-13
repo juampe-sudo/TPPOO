@@ -22,6 +22,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -33,6 +34,7 @@ public class ControladorSalidas {
     private Repositorio<Vehiculo> vehiculos;
     private Repositorio<Reserva> reservas;
     private String carpetaListas;
+    private DateTimeFormatter fmt = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
     public ControladorSalidas(Repositorio<Tour> tours, Repositorio<Salida> salidas, Repositorio<Empleado> empleados,
                               Repositorio<Vehiculo> vehiculos, Repositorio<Reserva> reservas, String carpetaListas) {
@@ -120,8 +122,8 @@ public class ControladorSalidas {
     public void iniciarSalida(String codSalida) throws ReglaNegocioException {
         Salida salida = buscarSalida(codSalida);
         if (!salida.getFechaInicio().equals(LocalDate.now())) {
-            throw new ReglaNegocioException("La salida " + codSalida + " empieza el " + salida.getFechaInicio()
-                    + ", no hoy");
+            throw new ReglaNegocioException("La salida " + codSalida + " empieza el "
+                    + salida.getFechaInicio().format(fmt) + ", no hoy");
         }
         salida.iniciar();
         salidas.guardar(salida);
@@ -190,11 +192,12 @@ public class ControladorSalidas {
         File archivo = new File(carpeta, "lista_" + salida.getCodigo() + ".txt");
         try (BufferedWriter escritor = new BufferedWriter(new FileWriter(archivo, StandardCharsets.UTF_8))) {
             escritor.write("Salida " + salida.getCodigo() + " - " + salida.getTour().getNombre() + " - "
-                    + salida.getFechaInicio() + " - Guía: " + salida.getGuia().getNombreCompleto());
+                    + salida.getFechaInicio().format(fmt) + " - Guía: " + salida.getGuia().getNombreCompleto());
             escritor.newLine();
             for (Pasajero p : lista) {
+                String restr = p.getRestricciones().isEmpty() ? "sin restricciones" : p.getRestricciones();
                 escritor.write(p.getApellido() + ", " + p.getNombre() + " | " + p.getDocumento() + " | "
-                        + p.getContactoEmergencia() + " | " + p.getRestricciones());
+                        + p.getContactoEmergencia() + " | " + restr);
                 escritor.newLine();
             }
         } catch (IOException e) {
