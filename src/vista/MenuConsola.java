@@ -5,6 +5,7 @@ import controladores.ControladorReportes;
 import controladores.ControladorReservas;
 import controladores.ControladorSalidas;
 import enums.CategoriaTour;
+import enums.EstadoReserva;
 import enums.MedioPago;
 import enums.NivelDificultad;
 import enums.Temporada;
@@ -257,7 +258,11 @@ public class MenuConsola {
             }
             System.out.println("  " + p + " - " + p.getTipo().getDescripcion() + extras);
         }
-        System.out.println("Total " + usd(r.getTotal()) + " | pagado " + usd(r.montoPagado()) + " | saldo " + usd(r.saldo()));
+        if (r.getEstado() == EstadoReserva.ANULADA) {
+            System.out.println("Total " + usd(r.getTotal()) + " | pagado " + usd(r.montoPagado()));
+        } else {
+            System.out.println("Total " + usd(r.getTotal()) + " | pagado " + usd(r.montoPagado()) + " | saldo " + usd(r.saldo()));
+        }
         for (Pago pg : r.getPagos()) {
             String cuotas = pg.getCuotas() > 1 ? " en " + pg.getCuotas() + " cuotas" : "";
             System.out.println("  Pago del " + pg.getFecha().format(FECHA) + ": " + usd(pg.getImporte()) + " "
