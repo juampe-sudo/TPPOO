@@ -3,7 +3,7 @@ Propuesta elegida: Propuesta B - Agencia de Turismo, adaptada a una agencia de t
 
 Descripción
 Es un sistema por consola para la agencia. Con él se arma el catálogo de tours (itinerario, tarifas por temporada y servicios adicionales) y se programan las salidas. Los vendedores registran clientes y reservas con sus pasajeros, cobran la seña y el saldo, y pueden modificar o cancelar una reserva con la politica de cancelación. El coordinador asigna guía y vehículo, emite la lista de pasajeros y opera cada salida, y el administrador liquida los honorarios de los guías y saca los cuatro reportes del enunciado.
-Lo que se carga queda guardado en archivos dentro de la carpeta data, asi que la información se mantiene entre una ejecución y otra.
+Lo que se carga queda guardado en una base de datos MySQL, asi que la información se mantiene entre una ejecución y otra.
 
 Integrantes
 - Juan Pedro Sama (@juampe-sudo)
@@ -12,25 +12,29 @@ Integrantes
 
 Requisitos
 - Java 17 o superior. Hace falta el JDK (javac), con el JRE solo no alcanza
-- No usamos Maven ni Gradle. La única librería externa es JUnit 5 para las pruebas y ya está en /lib, no hay que descargar nada
+- MySQL Server 8.0.19 o superior, andando en la misma máquina (localhost, puerto 3306). La base agencia y sus tablas las crea el programa la primera vez
+- No usamos Maven ni Gradle. Las librerías externas son el driver de MySQL (Connector/J) y JUnit 5 para las pruebas, las dos ya están en /lib
 
 Cómo compilar y ejecutar
 Los comandos se corren parados en la carpeta raíz del repositorio, porque el programa busca los archivos de data con rutas relativas.
+Antes de ejecutarlo hay que poner el usuario y la clave de MySQL en data/bd.properties (viene con usuario root y la clave vacía). Si MySQL no está en localhost:3306 se cambia la url en el mismo archivo. Ojo de no subir la clave al repositorio.
 
     javac -encoding UTF-8 -d out -sourcepath src src/app/Main.java
-    java -cp out app.Main
+    java -cp "out;lib/mysql-connector-j-9.7.0.jar" app.Main
+
+Ese java es para Windows. En Linux o Mac el classpath se separa con dos puntos: java -cp "out:lib/mysql-connector-j-9.7.0.jar" app.Main
 
 Lo probamos en Windows (cmd y PowerShell) y en una terminal bash. Si en Windows los acentos se ven raros en la consola, correr antes chcp 65001.
-Con IntelliJ: marcar src como Sources Root y test como Test Sources Root, agregar el jar de /lib como librería y ejecutar app.Main con la raíz del repo como working directory.
+Con IntelliJ: marcar src como Sources Root y test como Test Sources Root, agregar los dos jar de /lib como librerías y ejecutar app.Main con la raíz del repo como working directory.
 
 Al abrirse corre el control de plazos del día (cupo mínimo a 7 días y saldos a 10) y muestra lo que anuló, si anuló algo. Después pide elegir el rol (vendedor, coordinador de operaciones o administrador) y muestra el menú de ese rol. El vendedor tiene que ingresar su legajo. Las fechas se ingresan como dd/mm/aaaa y las horas como hh:mm.
-La primera vez que se ejecuta carga el personal y los vehículos desde data/datos_iniciales.txt. Para arrancar de cero alcanza con borrar los archivos .dat de la carpeta data.
+La primera vez que se ejecuta crea la base agencia en MySQL con las tablas de data/esquema.sql y carga el personal y los vehículos desde data/datos_iniciales.txt. Las tablas se pueden mirar con MySQL Workbench o con mysql -u root -p agencia. Para arrancar de cero alcanza con DROP DATABASE agencia; y volver a abrir el programa.
 
 Pruebas unitarias
-Están en /test y usan JUnit 5. Son 72 pruebas sobre el modelo, las estrategias de promoción y cancelación, la persistencia, los controladores y los reportes. Para compilarlas y correrlas (también desde la raíz):
+Están en /test y usan JUnit 5. Son 73 pruebas sobre el modelo, las estrategias de promoción y cancelación, la persistencia, los controladores y los reportes. Las de persistencia necesitan MySQL andando: usan otra base, agencia_prueba, que borran y vuelven a crear en cada prueba, así que no tocan los datos del programa. Para compilarlas y correrlas (también desde la raíz):
 
     javac -encoding UTF-8 -d out -cp lib/junit-platform-console-standalone-1.13.4.jar -sourcepath src test/controladores/*.java test/estrategias/*.java test/modelo/*.java test/persistencia/*.java test/reportes/*.java
-    java -jar lib/junit-platform-console-standalone-1.13.4.jar execute -cp out --scan-classpath
+    java -jar lib/junit-platform-console-standalone-1.13.4.jar execute -cp out -cp lib/mysql-connector-j-9.7.0.jar --scan-classpath out
 
 El plan de pruebas funcionales, con el dato de entrada, el resultado esperado y el obtenido de cada caso, está en docs/plan_de_pruebas.md.
 
@@ -61,12 +65,13 @@ Estructura del proyecto
 - /docs/uml: diagramas UML (imagen .png y fuente .drawio)
 - /src: código fuente en Java
 - /test: pruebas unitarias con JUnit 5
-- /lib: jar de JUnit para compilar y correr las pruebas
-- /data: datos iniciales. Ahí mismo el programa guarda los .dat, las listas de pasajeros y los reportes
+- /lib: driver de MySQL y jar de JUnit para las pruebas
+- /data: datos iniciales, esquema.sql con las tablas y bd.properties con los datos para conectarse a MySQL. Ahí mismo el programa guarda las listas de pasajeros y los reportes
 
 Entregas
 - Etapa 1 (modelado y patrones): docs/Etapa1_Documento_de_Diseno.pdf, tag etapa-1
 - Etapa 2 (código y pruebas): código en /src y /test, docs/plan_de_pruebas.md, docs/informe_final.md y el diagrama de clases actualizado, tag etapa-2 (la entrega se pasó al 12/11/26)
+- Mejora: la persistencia pasó de archivos .dat a una base de datos MySQL, con la conexión en un Singleton (ConexionBD). Qué cambió y por qué está en docs/mejora_base_de_datos.md
 
 Historial del repositorio
 - El trabajo empezó en otro repositorio (github.com/jpsam4/TrabajoPOO). Perdimos el acceso a la cuenta administradora de ese repositorio y migramos el trabajo a este, conservando el historial de commits.

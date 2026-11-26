@@ -1,8 +1,6 @@
 package estrategias;
 
-import java.io.Serializable;
-
-public interface PoliticaCancelacion extends Serializable {
+public interface PoliticaCancelacion {
 
     double porcentajeDevolucion(int dias);
 }

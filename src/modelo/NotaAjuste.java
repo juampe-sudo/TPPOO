@@ -1,11 +1,8 @@
 package modelo;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
-public class NotaAjuste implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class NotaAjuste {
 
     private LocalDate fecha;
     private String descripcion;

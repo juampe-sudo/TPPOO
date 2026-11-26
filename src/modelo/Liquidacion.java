@@ -1,10 +1,6 @@
 package modelo;
 
-import java.io.Serializable;
-
-public class Liquidacion implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Liquidacion {
 
     private Guia guia;
     private Salida salida;

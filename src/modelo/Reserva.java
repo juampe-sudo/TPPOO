@@ -6,15 +6,12 @@ import estrategias.PoliticaCancelacion;
 import estrategias.Promocion;
 import excepciones.ReglaNegocioException;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public class Reserva implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Reserva {
 
     private int numero;
     private LocalDate fecha;
@@ -196,10 +193,22 @@ public class Reserva implements Serializable {
         agregarNota("Reemplazo de " + anterior.getNombreCompleto() + " por " + nuevo.getNombreCompleto(), 0.0);
     }
 
-    public void revincular(Cliente cliente, Salida salida, Vendedor vendedor) {
-        this.cliente = cliente;
-        this.salida = salida;
-        this.vendedor = vendedor;
+    public void restaurar(LocalDate fecha, EstadoReserva estado, double total) {
+        this.fecha = fecha;
+        this.estado = estado;
+        this.total = total;
+    }
+
+    public void restaurarPago(LocalDate fecha, double importe, MedioPago medio, int cuotas) {
+        pagos.add(new Pago(fecha, importe, medio, cuotas));
+    }
+
+    public void restaurarNota(LocalDate fecha, String descripcion, double importe) {
+        notas.add(new NotaAjuste(fecha, descripcion, importe));
+    }
+
+    public void restaurarCancelacion(LocalDate fecha, String motivo, double importeDevuelto, MedioPago medio) {
+        cancelacion = new Cancelacion(fecha, motivo, importeDevuelto, medio);
     }
 
     void finalizar() {

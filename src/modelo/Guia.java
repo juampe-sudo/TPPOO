@@ -12,8 +12,6 @@ import java.util.Set;
 
 public class Guia extends Empleado {
 
-    private static final long serialVersionUID = 1L;
-
     private List<String> idiomas;
     private Set<CategoriaTour> categorias;
     private double honorarioPorDia;
@@ -91,8 +89,8 @@ public class Guia extends Empleado {
         return liquidacion;
     }
 
-    public void revincular(List<Salida> salidas) {
-        this.salidas = new ArrayList<>(salidas);
+    public void restaurarLiquidacion(Salida s, int dias, double montoDias, double montoAdicionales) {
+        liquidaciones.add(new Liquidacion(this, s, dias, montoDias, montoAdicionales));
     }
 
     void agregarSalida(Salida s) {

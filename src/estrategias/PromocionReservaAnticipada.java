@@ -7,8 +7,6 @@ import java.time.temporal.ChronoUnit;
 
 public class PromocionReservaAnticipada implements Promocion {
 
-    private static final long serialVersionUID = 1L;
-
     private int diasMinimos;
     private double porcentaje;
 

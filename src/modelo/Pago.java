@@ -2,12 +2,9 @@ package modelo;
 
 import enums.MedioPago;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 
-public class Pago implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Pago {
 
     private LocalDate fecha;
     private double importe;

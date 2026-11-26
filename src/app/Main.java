@@ -15,7 +15,15 @@ import modelo.Salida;
 import modelo.Tour;
 import modelo.Vehiculo;
 import persistencia.CargadorDatosIniciales;
-import persistencia.RepositorioArchivo;
+import persistencia.ConexionBD;
+import persistencia.Repositorio;
+import persistencia.RepositorioClienteSQL;
+import persistencia.RepositorioEmpleadoSQL;
+import persistencia.RepositorioProveedorSQL;
+import persistencia.RepositorioReservaSQL;
+import persistencia.RepositorioSalidaSQL;
+import persistencia.RepositorioTourSQL;
+import persistencia.RepositorioVehiculoSQL;
 import reportes.Reporte;
 import reportes.ReporteCancelaciones;
 import reportes.ReporteIngresosPorTour;
@@ -33,21 +41,14 @@ public class Main {
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
         try {
-            RepositorioArchivo<Tour> tours = new RepositorioArchivo<>("data/tours.dat", Tour::getCodigo);
-            RepositorioArchivo<Proveedor> proveedores = new RepositorioArchivo<>("data/proveedores.dat",
-                    Proveedor::getEin);
-            RepositorioArchivo<Salida> salidas = new RepositorioArchivo<>("data/salidas.dat", Salida::getCodigo);
-            RepositorioArchivo<Reserva> reservas = new RepositorioArchivo<>("data/reservas.dat",
-                    r -> String.valueOf(r.getNumero()));
-            RepositorioArchivo<Cliente> clientes = new RepositorioArchivo<>("data/clientes.dat",
-                    Cliente::getDocumento);
-            RepositorioArchivo<Empleado> empleados = new RepositorioArchivo<>("data/empleados.dat",
-                    e -> String.valueOf(e.getLegajo()));
-            RepositorioArchivo<Vehiculo> vehiculos = new RepositorioArchivo<>("data/vehiculos.dat",
-                    Vehiculo::getPatente);
-
+            Repositorio<Proveedor> proveedores = new RepositorioProveedorSQL();
+            Repositorio<Tour> tours = new RepositorioTourSQL(proveedores);
+            Repositorio<Cliente> clientes = new RepositorioClienteSQL();
+            Repositorio<Empleado> empleados = new RepositorioEmpleadoSQL();
+            Repositorio<Vehiculo> vehiculos = new RepositorioVehiculoSQL();
             new CargadorDatosIniciales("data/datos_iniciales.txt").cargar(empleados, vehiculos);
-            RepositorioArchivo.vincular(tours, salidas, reservas, clientes, empleados, vehiculos);
+            Repositorio<Salida> salidas = new RepositorioSalidaSQL(tours, empleados, vehiculos);
+            Repositorio<Reserva> reservas = new RepositorioReservaSQL(clientes, salidas, empleados);
 
             List<Promocion> promociones = new ArrayList<>();
             promociones.add(new PromocionReservaAnticipada(60, 0.15));
@@ -71,9 +72,10 @@ public class Main {
             System.out.println();
             System.out.println("Se terminó la entrada, se cierra el programa");
         } catch (IllegalStateException e) {
-            System.out.println("Error con los archivos de datos: " + e.getMessage());
+            System.out.println("Error con los datos del programa: " + e.getMessage());
         } finally {
             scanner.close();
+            ConexionBD.cerrar();
         }
     }
 }

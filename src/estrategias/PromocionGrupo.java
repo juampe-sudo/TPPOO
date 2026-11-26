@@ -5,8 +5,6 @@ import modelo.Reserva;
 
 public class PromocionGrupo implements Promocion {
 
-    private static final long serialVersionUID = 1L;
-
     private int minimoPasajeros;
     private double porcentaje;
 

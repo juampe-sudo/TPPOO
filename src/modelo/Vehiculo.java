@@ -2,11 +2,7 @@ package modelo;
 
 import enums.TipoVehiculo;
 
-import java.io.Serializable;
-
-public class Vehiculo implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public class Vehiculo {
 
     private String patente;
     private int capacidad;

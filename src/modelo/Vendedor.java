@@ -2,8 +2,6 @@ package modelo;
 
 public class Vendedor extends Empleado {
 
-    private static final long serialVersionUID = 1L;
-
     private double comision;
 
     public Vendedor(String nombre, String apellido, String documento, int legajo, String telefono,

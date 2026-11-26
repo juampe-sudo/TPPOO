@@ -3,9 +3,7 @@ package estrategias;
 import excepciones.ReglaNegocioException;
 import modelo.Reserva;
 
-import java.io.Serializable;
-
-public interface Promocion extends Serializable {
+public interface Promocion {
 
     double calcularDescuento(Reserva r) throws ReglaNegocioException;
 }

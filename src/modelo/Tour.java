@@ -5,16 +5,13 @@ import enums.Temporada;
 import enums.TipoActividad;
 import excepciones.ReglaNegocioException;
 
-import java.io.Serializable;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
-public abstract class Tour implements Serializable {
-
-    private static final long serialVersionUID = 1L;
+public abstract class Tour {
 
     private String codigo;
     private String nombre;
